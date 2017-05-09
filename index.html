@@ -12,9 +12,17 @@
 			height: 100%
 		}
 	</style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
-
 <body>
+	<div class="row">
+		<div class="col-md-6">
+			<h1>UK 3D Hex Map</h1>
+		</div>
+		<div class="col-md-6">
+			<h1>TODO</h1>
+		</div>
+	</div>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="js/three.js"></script>
 	<script src="js/orbit.js"></script>
@@ -31,19 +39,33 @@
 		const generateColor = obj => {
 			switch (obj.first_party) {
 				case "Con":
-					return 0x0000ff;
+					return 0x2254F4;
+				case "DUP":
+					return 0x4f4c9a;
+				case "Ind":
+					return 0xdfdfdf;
+				case "SDLP":
+					return 0xfbb675;
+				case "SF":
+					return 0xb6c727;
+				case "UUP":
+					return 0xEF3AAB;
 				case "Lab":
-					return 0xff0000;
+					return 0xD60303;
 				case "SNP":
-					return 0xffff00;
+					return 0xFF6700;
 				case "LD":
-					return 0xffcc00;
+					return 0xF9BC26;
 				case "UKIP":
-					return 0x9900cc;
+					return 0x722EA5;
 				case "Green":
-					return 0x00ff00;
+					return 0x0DBC37;
+				case "PC":
+					return 0x1DD3A7;
+				case "Spk":
+					return 0x909090;
 				default:
-					return 0xeeeeee;
+					return 0x000000;
 			}
 		}
 

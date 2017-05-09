@@ -8,7 +8,7 @@ function generateHexagon(x, y, z, radius, color, opacity) {
   pts.push(new THREE.Vector3(-radius * 0.866, +radius * 0.5, 0));
   var hex = new THREE.Shape(pts);
   geometry = new THREE.ShapeGeometry(hex);
-  material = new THREE.MeshLambertMaterial({
+  material = new THREE.MeshBasicMaterial({
     color,
     wireframe: false,
     opacity,
@@ -128,12 +128,12 @@ function generateHexagonSides(x, y, height, color, opacity) {
 function generateHexagonalPrism(x, y, height, color, opacity) {
   var group = new THREE.Object3D();
 
-  const topHex = generateHexagon(x, y, 0, 1, color, opacity);
-  group.add(topHex);
-  const bottomHex = generateHexagon(x, y, height, 1, color, opacity);
+  const bottomHex = generateHexagon(x, y, 0, 1, color, 0);
   group.add(bottomHex);
+  const topHex = generateHexagon(x, y, height, 1, color, 0.8);
+  group.add(topHex);
 
-  const sides = generateHexagonSides(x, y, height, color, opacity);
+  const sides = generateHexagonSides(x, y, height, color, 0.2);
   group.add(sides);
 
   return group;
@@ -174,6 +174,13 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
 
   camera.position.z = 50;
   camera.position.y = 10;
+
+  window.addEventListener( 'resize', onWindowResize, false );
+  function onWindowResize(){
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+  }
 
   var controls = new THREE.OrbitControls(camera);
 
