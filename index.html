@@ -1,16 +1,60 @@
 <html>
-	<head>
-		<title>Hex Tiles</title>
-		<style>
-			body { margin: 0; }
-			canvas { width: 100%; height: 100% }
-		</style>
-	</head>
-	<body>
-		<script src="data/data.js"></script>
-		<script src="js/three.js"></script>
-		<script src="js/orbit.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
-		<script src="js/hexmap.js"></script>
-	</body>
+
+<head>
+	<title>Hex Tiles</title>
+	<style>
+		body {
+			margin: 0;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%
+		}
+	</style>
+</head>
+
+<body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="js/three.js"></script>
+	<script src="js/orbit.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
+	<script src="js/hexmap.js"></script>
+	<script>
+		var data = $.ajax({
+			url: "data/combined.json",
+			dataType: "application/json",
+			async: false
+		});
+		var data = JSON.parse(data.responseText);
+
+		const generateColor = obj => {
+			switch (obj.first_party) {
+				case "Con":
+					return 0x0000ff;
+				case "Lab":
+					return 0xff0000;
+				case "SNP":
+					return 0xffff00;
+				case "LD":
+					return 0xffcc00;
+				case "UKIP":
+					return 0x9900cc;
+				case "Green":
+					return 0x00ff00;
+				default:
+					return 0xeeeeee;
+			}
+		}
+
+		const generateHeight = obj => {
+			return parseInt(obj.majority) / 3000
+		}
+
+		const generateOpacity = obj => { return 0.5 }
+
+		generateHexMap(data, generateColor, generateHeight, generateOpacity)
+	</script>
+</body>
+
 </html>

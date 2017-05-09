@@ -1,4 +1,4 @@
-const data = {
+{
 		"E14000530":{"n":"Aldershot","q":-3,"r":-11,"a":"SE","u":"UKJ","p":72430},
 		"E14000531":{"n":"Aldridge-Brownhills","q":-3,"r":-1,"a":"WM","u":"UKG","p":60215},
 		"E14000532":{"n":"Altrincham and Sale West","q":-7,"r":3,"a":"NW","u":"UKD","p":71511},
