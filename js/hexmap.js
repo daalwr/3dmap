@@ -150,9 +150,9 @@ function generateHexagonalPrism(x, y, height, color, opacity, cstyid) {
   return group;
 }
 
-function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
+function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback) {
   var scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xeeeeee);
+  scene.background = new THREE.Color(0x000000);
   var camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
@@ -161,9 +161,12 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
   );
 
   var renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor( 0xf0f0f0 );
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+  renderer.sortObjects = false;
 
-  document.body.appendChild(renderer.domElement);
+  document.getElementById("mapcontainer").appendChild(renderer.domElement);
 
   for (i = 0; i < data.length; i++) {
     var x = data[i].x;
@@ -195,9 +198,9 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
 
   window.addEventListener("resize", onWindowResize, false);
   function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = document.getElementById("mapcontainer").offsetWidth / document.getElementById("mapcontainer").offsetHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(document.getElementById("mapcontainer").offsetWidth, document.getElementById("mapcontainer").offsetHeight, false);
   }
 
   var controls = new THREE.OrbitControls(camera);
@@ -210,14 +213,19 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
   document.addEventListener("mousemove", onDocumentMouseMove, false);
 
   function onDocumentMouseMove(event) {
+
+    const boundingBox = document.getElementById("mapcontainer").firstChild.getBoundingClientRect()
+
+    // console.log(rect.top, rect.right, rect.bottom, rect.left);
+
     event.preventDefault();
-    mouse.x = event.clientX / window.innerWidth * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX - boundingBox.left) / document.getElementById("mapcontainer").firstChild.offsetWidth * 2 - 1;
+    mouse.y = -((event.clientY-boundingBox.top) / (document.getElementById("mapcontainer").firstChild.offsetHeight + 2)) * 2 + 1;
+    
   }
 
   var render = function() {
     requestAnimationFrame(render);
-
 
 	// update the picking ray with the camera and mouse position
 	raycaster.setFromCamera( mouse, camera );
@@ -225,12 +233,14 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
 	// calculate objects intersecting the picking ray
 	var intersects = raycaster.intersectObjects( scene.children, true);
 
-	// for ( var i = 0; i < intersects.length; i++ ) {
-  //   console.log(intersects[0].object.userData)
-  //   $("#cstyid").text(intersects[0].object.userData.cstyid)
-	// }
+	for ( var i = 0; i < intersects.length; i++ ) {
+    hoverCallback(intersects[0].object.userData.cstyid)
+	}
 
 	renderer.render( scene, camera );
+  camera.aspect = document.getElementById("mapcontainer").offsetWidth / document.getElementById("mapcontainer").offsetHeight;
+  camera.updateProjectionMatrix();
+
   };
 
   render();

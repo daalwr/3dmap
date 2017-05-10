@@ -2,27 +2,44 @@
 
 <head>
 	<title>Hex Tiles</title>
-	<style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
 		body {
 			margin: 0;
+			background-color: black;
+			color: #DDD
 		}
 
 		canvas {
 			width: 100%;
-			height: 100%
+			height: 100%;
 		}
+
 	</style>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
-	<!--<div class="row">
+<div id="mainContainer" class="container-fluid">
+	<div class="row">
 		<div class="col-md-6">
 			<h1>UK 3D Hex Map</h1>
 		</div>
-		<div class="col-md-6">
-			<h1 id="cstyid" >TODO</h1>
+	</div>
+	<div id="maprow" class="row">
+	<div id="mapcontainer" class="col-md-9"></div>
+		<div class="col-md-3">
+			<h1>Information about constituency:</h1>
+			<h2>ID: <span id="constId"></span></h2>	
+			<h2>Name: <span id="constName"></span></h2>	
+			<h2>County: <span id="countyName"></span></h2>
+			<br />
+			<br />
+			<p>Created by Daniel Wright</p>
+			<a href="https://github.com/daalwr/3dmap">Github</a></p>
+			<p>Hexagon layout from <a href="https://github.com/odileeds/hexmaps">https://github.com/odileeds/hexmaps</a> and 2015 election results data from <a href="http://www.data.parliament.uk/dataset/general-election-2015">http://www.data.parliament.uk/dataset/general-election-2015</a></p>
 		</div>
-	</div>-->
+	</div>
+</div>
+
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="js/three.js"></script>
 	<script src="js/orbit.js"></script>
@@ -75,7 +92,25 @@
 
 		const generateOpacity = obj => { return 0.5 }
 
-		generateHexMap(data, generateColor, generateHeight, generateOpacity)
+		const hoverCallback = (constId) => {
+			console.log("Hovering over: " + constId)
+
+			var foundData = {}
+			// TODO: Pass the data in as a hash/object instead of an array to facilitate fast lookup.
+
+			for (i = 0; i < data.length; i++) {
+				if(data[i].id == constId) {
+					foundData = data[i]
+					break
+				}
+			}
+
+			$("#constId").text(foundData.id);
+			$("#constName").text(foundData.n);
+			$("#countyName").text(foundData.county_name);
+		}
+
+		generateHexMap(data, generateColor, generateHeight, generateOpacity, hoverCallback)
 	</script>
 </body>
 
