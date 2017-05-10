@@ -1,4 +1,7 @@
-function generateHexagon(x, y, z, radius, color, opacity) {
+var raycaster;
+var mouse = new THREE.Vector2();
+
+function generateHexagon(x, y, z, radius, color, opacity, cstyid) {
   var pts = [];
   pts.push(new THREE.Vector3(0, radius, 0));
   pts.push(new THREE.Vector3(radius * 0.866, radius * 0.5, 0));
@@ -17,10 +20,11 @@ function generateHexagon(x, y, z, radius, color, opacity) {
   material.side = THREE.DoubleSide;
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(x, y, z);
+  mesh.userData = { cstyid }
   return mesh;
 }
 
-function generateSide(rotX, rotY, posX, posY, width, height, color, opacity) {
+function generateSide(rotX, rotY, posX, posY, width, height, color, opacity, cstyid) {
   var geometry = new THREE.PlaneGeometry(width, height);
   var material = new THREE.MeshBasicMaterial({
     color,
@@ -35,10 +39,11 @@ function generateSide(rotX, rotY, posX, posY, width, height, color, opacity) {
   mesh.position.setX(posX);
   mesh.position.setY(posY);
   mesh.position.setZ(height / 2);
+  mesh.userData = { cstyid }
   return mesh;
 }
 
-function generateHexagonSides(x, y, height, color, opacity) {
+function generateHexagonSides(x, y, height, color, opacity, cstyid) {
   var group = new THREE.Object3D();
 
   const side1 = generateSide(
@@ -49,7 +54,8 @@ function generateHexagonSides(x, y, height, color, opacity) {
     1,
     height,
     color,
-    opacity
+    opacity,
+    cstyid
   );
 
   group.add(side1);
@@ -62,7 +68,8 @@ function generateHexagonSides(x, y, height, color, opacity) {
     1,
     height,
     color,
-    opacity
+    opacity,
+    cstyid
   );
 
   group.add(side2);
@@ -75,7 +82,8 @@ function generateHexagonSides(x, y, height, color, opacity) {
     1,
     height,
     color,
-    opacity
+    opacity,
+    cstyid
   );
 
   group.add(side3);
@@ -88,7 +96,8 @@ function generateHexagonSides(x, y, height, color, opacity) {
     1,
     height,
     color,
-    opacity
+    opacity,
+    cstyid
   );
 
   group.add(side4);
@@ -101,7 +110,8 @@ function generateHexagonSides(x, y, height, color, opacity) {
     1,
     height,
     color,
-    opacity
+    opacity,
+    cstyid
   );
 
   group.add(side5);
@@ -114,7 +124,8 @@ function generateHexagonSides(x, y, height, color, opacity) {
     1,
     height,
     color,
-    opacity
+    opacity,
+    cstyid
   );
 
   group.add(side6);
@@ -125,15 +136,15 @@ function generateHexagonSides(x, y, height, color, opacity) {
   return group;
 }
 
-function generateHexagonalPrism(x, y, height, color, opacity) {
+function generateHexagonalPrism(x, y, height, color, opacity, cstyid) {
   var group = new THREE.Object3D();
 
-  const bottomHex = generateHexagon(x, y, 0, 1, color, 0);
+  const bottomHex = generateHexagon(x, y, 0, 1, color, 0, cstyid);
   group.add(bottomHex);
-  const topHex = generateHexagon(x, y, height, 1, color, 0.8);
+  const topHex = generateHexagon(x, y, height, 1, color, 0.8, cstyid);
   group.add(topHex);
 
-  const sides = generateHexagonSides(x, y, height, color, 0.2);
+  const sides = generateHexagonSides(x, y, height, color, 0.2, cstyid);
   group.add(sides);
 
   return group;
@@ -168,18 +179,25 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
       y = y * separator * 0.866;
     }
 
-    const hexGroup = generateHexagonalPrism(x, y, heightFunc(data[i]), colorFunc(data[i]), opacityFunc(data[i]));
+    const hexGroup = generateHexagonalPrism(
+      x,
+      y,
+      heightFunc(data[i]),
+      colorFunc(data[i]),
+      opacityFunc(data[i]),
+      data[i].id
+    );
     scene.add(hexGroup);
   }
 
   camera.position.z = 50;
   camera.position.y = 10;
 
-  window.addEventListener( 'resize', onWindowResize, false );
-  function onWindowResize(){
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize( window.innerWidth, window.innerHeight );
+  window.addEventListener("resize", onWindowResize, false);
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   var controls = new THREE.OrbitControls(camera);
@@ -188,12 +206,32 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc) {
   light.position.set(0, 0, 100);
   scene.add(light);
 
+  raycaster = new THREE.Raycaster();
+  document.addEventListener("mousemove", onDocumentMouseMove, false);
+
+  function onDocumentMouseMove(event) {
+    event.preventDefault();
+    mouse.x = event.clientX / window.innerWidth * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  }
+
   var render = function() {
     requestAnimationFrame(render);
-    renderer.render(scene, camera);
+
+
+	// update the picking ray with the camera and mouse position
+	raycaster.setFromCamera( mouse, camera );
+
+	// calculate objects intersecting the picking ray
+	var intersects = raycaster.intersectObjects( scene.children, true);
+
+	// for ( var i = 0; i < intersects.length; i++ ) {
+  //   console.log(intersects[0].object.userData)
+  //   $("#cstyid").text(intersects[0].object.userData.cstyid)
+	// }
+
+	renderer.render( scene, camera );
   };
 
   render();
 }
-
-
