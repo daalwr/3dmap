@@ -1,4 +1,4 @@
-var raycaster;
+var raycaster, scene, renderer, camera;
 var mouse = new THREE.Vector2();
 
 function generateHexagon(x, y, z, radius, color, opacity, cstyid) {
@@ -26,6 +26,11 @@ function generateHexagon(x, y, z, radius, color, opacity, cstyid) {
 
 function generateSide(rotX, rotY, posX, posY, width, height, color, opacity, cstyid) {
   var geometry = new THREE.PlaneGeometry(width, height);
+  geometry.vertices[0].set(-width/2, height, 0);
+  geometry.vertices[1].set(width/2, height, 0);
+  geometry.vertices[2].set(-width/2, 0, 0);
+  geometry.vertices[3].set(width/2, 0, 0);
+  geometry.verticesNeedUpdate=true;
   var material = new THREE.MeshBasicMaterial({
     color,
     side: THREE.DoubleSide,
@@ -38,7 +43,7 @@ function generateSide(rotX, rotY, posX, posY, width, height, color, opacity, cst
   mesh.rotation.y = rotY;
   mesh.position.setX(posX);
   mesh.position.setY(posY);
-  mesh.position.setZ(height / 2);
+  mesh.position.setZ(0);
   mesh.userData = { cstyid }
   return mesh;
 }
@@ -151,16 +156,16 @@ function generateHexagonalPrism(x, y, height, color, opacity, cstyid) {
 }
 
 function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback) {
-  var scene = new THREE.Scene();
+  scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
-  var camera = new THREE.PerspectiveCamera(
+  camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
   );
 
-  var renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer();
   renderer.setClearColor( 0xf0f0f0 );
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -215,33 +220,65 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
   function onDocumentMouseMove(event) {
 
     const boundingBox = document.getElementById("mapcontainer").firstChild.getBoundingClientRect()
-
-    // console.log(rect.top, rect.right, rect.bottom, rect.left);
-
     event.preventDefault();
     mouse.x = (event.clientX - boundingBox.left) / document.getElementById("mapcontainer").firstChild.offsetWidth * 2 - 1;
     mouse.y = -((event.clientY-boundingBox.top) / (document.getElementById("mapcontainer").firstChild.offsetHeight + 2)) * 2 + 1;
     
   }
 
-  var render = function() {
-    requestAnimationFrame(render);
+    animate();
+  }
 
-	// update the picking ray with the camera and mouse position
-	raycaster.setFromCamera( mouse, camera );
+function animate() {
+    requestAnimationFrame(animate);
+    render();
+}
 
-	// calculate objects intersecting the picking ray
-	var intersects = raycaster.intersectObjects( scene.children, true);
+function render() {
 
-	for ( var i = 0; i < intersects.length; i++ ) {
-    hoverCallback(intersects[0].object.userData.cstyid)
-	}
+    TWEEN.update();
 
-	renderer.render( scene, camera );
-  camera.aspect = document.getElementById("mapcontainer").offsetWidth / document.getElementById("mapcontainer").offsetHeight;
-  camera.updateProjectionMatrix();
+    // update the picking ray with the camera and mouse position
+    raycaster.setFromCamera( mouse, camera );
 
-  };
+    // calculate objects intersecting the picking ray
+    var intersects = raycaster.intersectObjects( scene.children, true);
 
-  render();
+    for ( var i = 0; i < intersects.length; i++ ) {
+      hoverCallback(intersects[0].object.userData.cstyid)
+    }
+
+    renderer.render( scene, camera );
+    camera.aspect = document.getElementById("mapcontainer").offsetWidth / document.getElementById("mapcontainer").offsetHeight;
+    camera.updateProjectionMatrix();
+
+}
+
+function tweenHexagonalPrism(hexObject, newHeight) {
+
+  console.log(hexObject.children[1].position.z)
+
+  var tween = new TWEEN.Tween({ x: hexObject.children[1].position.z })
+    .to({ x: newHeight }, 5000)
+    .onUpdate(function() {
+
+      const topHex = hexObject.children[1]
+      topHex.position.setZ(this.x)
+
+      const sides = hexObject.children[2].children
+
+      for(var i =0; i<6; i++) {
+        sides[i].geometry.vertices[0].setY(this.x)
+        sides[i].geometry.vertices[1].setY(this.x)
+        sides[i].geometry.verticesNeedUpdate = true
+      }
+    })
+    .start();
+}
+
+function updateHexMap() {
+  var tween = x => {
+    if(x.type != "PointLight") {tweenHexagonalPrism(x,0)};
+  }
+  R.forEach(tween, scene.children);
 }

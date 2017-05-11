@@ -44,10 +44,11 @@
 	<script src="js/three.js"></script>
 	<script src="js/orbit.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
 	<script src="js/hexmap.js"></script>
 	<script>
 		var data = $.ajax({
-			url: "data/combined.json",
+			url: "data/combined2.json",
 			dataType: "application/json",
 			async: false
 		});
@@ -93,8 +94,6 @@
 		const generateOpacity = obj => { return 0.5 }
 
 		const hoverCallback = (constId) => {
-			console.log("Hovering over: " + constId)
-
 			var foundData = {}
 			// TODO: Pass the data in as a hash/object instead of an array to facilitate fast lookup.
 
