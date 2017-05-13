@@ -261,24 +261,13 @@ function tweenHexagonalPrism(hexObject, newHeight) {
 }
 
 function tweenExplodeMap(hexObject) {
-    new TWEEN.Tween({ x: 1 })
-    .to({ x: 20 }, 3000)
+    new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y })
+    .to({ x: hexObject.userData.originX * 20, y: hexObject.userData.originY * 20 }, 3000)
     .onUpdate(function() {
-      hexObject.position.x = hexObject.userData.originX * this.x
-      hexObject.position.y = hexObject.userData.originY * this.x
+      hexObject.position.x = this.x
+      hexObject.position.y = this.y
     })
     .easing(TWEEN.Easing.Exponential.InOut)
-    .start();
-
-
-    new TWEEN.Tween({ x: 20 })
-    .to({ x: 1 }, 3000)
-    .onUpdate(function() {
-      hexObject.position.x = hexObject.userData.originX * this.x
-      hexObject.position.y = hexObject.userData.originY * this.x
-    })
-    .easing(TWEEN.Easing.Exponential.InOut)
-    .delay(5000)
     .start();
 }
 
@@ -300,7 +289,7 @@ function tweenRectangleMap(hexObject, count) {
     const targetX = count / 25 * 2 - 25
     const targetY = count % 25 * 2 - 25
 
-    new TWEEN.Tween({ x: hexObject.userData.originX, y: hexObject.userData.originY })
+    new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y })
     .to({ x: targetX, y: targetY }, 3000)
     .onUpdate(function() {
       hexObject.position.x = this.x
@@ -308,7 +297,6 @@ function tweenRectangleMap(hexObject, count) {
     })
     .easing(TWEEN.Easing.Exponential.InOut)
     .start();
-
 }
 
 function rectangleHexMap() {
@@ -326,7 +314,7 @@ function rectangleHexMap() {
   R.forEach(tween, sortByParty(scene.children));
 }
 
-function tweenNewVis(hexObject, colorFunc, heightFunc, positionFunc) {
+function tweenNewVis(hexObject, heightFunc, positionFunc) {
 
   const targetX = positionFunc(hexObject.userData).x
   const targetY = positionFunc(hexObject.userData).y
@@ -350,11 +338,15 @@ function tweenNewVis(hexObject, colorFunc, heightFunc, positionFunc) {
     .easing(TWEEN.Easing.Exponential.InOut)
     .start();
 
-    new TWEEN.Tween(hexObject.children[1].material.color)
+}
+
+function tweenColor(hexObject, colorFunc) {
+  new TWEEN.Tween(hexObject.children[1].material.color)
     .to(colorFunc(hexObject.userData), 1000)
     .onUpdate(function() {
       const newColor = {r: this.r, g: this.g, b: this.b}
       hexObject.children[1].material.color.copy(newColor)
+      // TODO Clean up
       hexObject.children[2].children[0].material.color.copy(newColor)
       hexObject.children[2].children[1].material.color.copy(newColor)
       hexObject.children[2].children[2].material.color.copy(newColor)
@@ -367,12 +359,11 @@ function tweenNewVis(hexObject, colorFunc, heightFunc, positionFunc) {
 }
 
 function animateTo(colorFunc, heightFunc, positionFunc) {
-  console.log("AnimateTo called with ")
-  console.log(colorFunc)
-  console.log(heightFunc)
-  console.log(positionFunc)
   const tween = object => {
-    if(object.type != "PointLight") {tweenNewVis(object, colorFunc, heightFunc, positionFunc)};
+    if(object.type != "PointLight") {
+      tweenNewVis(object, heightFunc, positionFunc)
+      tweenColor(object, colorFunc)
+    };
   }
   R.forEach(tween, scene.children);
 }

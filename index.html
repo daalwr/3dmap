@@ -40,6 +40,8 @@
 			<button id="colorUKIP" type="button" class="btn btn-default">UKIP</button>
 			<button id="colorGreen" type="button" class="btn btn-default">Green</button>
 			<button id="colorPC" type="button" class="btn btn-default">PC</button>
+			<button id="rectangle" type="button" class="btn btn-default">Rectangle</button>
+			<button id="explode" type="button" class="btn btn-default">Explode</button>
 			<h1>Information about constituency:</h1>
 			<h2>ID: <span id="constId"></span></h2>	
 			<h2>Name: <span id="constName"></span></h2>	
@@ -70,7 +72,6 @@
 
 
 		// Colouring Functions
-
 		const colorCon = new THREE.Color(0x2254F4);
 		const colorDUP = new THREE.Color(0x4f4c9a);
 		const colorInd = new THREE.Color(0xdfdfdf);
@@ -146,14 +147,14 @@
 			$("#majority").text(foundData.majority);
 		}
 
-		generateHexMap(data, colorWithParty, heightToMajority, generateOpacity, hoverCallback)
-		
 		// Layout Functions
 
 		const mapPosition = obj => {
 			return {x: obj.originX, y: obj.originY}
 		}
 
+		generateHexMap(data, colorWithParty, heightToMajority, generateOpacity, hoverCallback)
+		
 		// Button wiring
 		$( "#party" ).click(function() {
 			animateTo(colorWithParty, heightToMajority, mapPosition)
@@ -170,6 +171,8 @@
 		$('#colorUKIP').click(function() {animateTo(colorWithUKIP, heightToUKIP, mapPosition)})
 		$('#colorGreen').click(function() {animateTo(colorWithGreen, heightToGreen, mapPosition)})
 		$('#colorPC').click(function() {animateTo(colorWithPC, heightToPC, mapPosition)})
+		$('#rectangle').click(function() {rectangleHexMap()})
+		$('#explode').click(function() {explodeHexMap()})
 
 	</script>
 </body>
