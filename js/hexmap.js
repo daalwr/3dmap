@@ -220,7 +220,7 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     mouse.y = -((event.clientY-boundingBox.top) / (document.getElementById("mapcontainer").firstChild.offsetHeight + 2)) * 2 + 1;
   }
 
-  document.addEventListener("touchmove", e.preventDefault());
+  document.addEventListener("touchmove", e => e.preventDefault());
 
     animate();
   }
