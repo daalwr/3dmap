@@ -2,16 +2,16 @@ var raycaster, scene, renderer, camera;
 var mouse = new THREE.Vector2();
 
 function generateHexagon(height, radius, color, opacity, cstyid) {
-  var pts = [];
+  const pts = [];
   pts.push(new THREE.Vector3(0, radius, 0));
   pts.push(new THREE.Vector3(radius * 0.866, radius * 0.5, 0));
   pts.push(new THREE.Vector3(radius * 0.866, -radius * 0.5, 0));
   pts.push(new THREE.Vector3(0, -radius, 0));
   pts.push(new THREE.Vector3(-radius * 0.866, -radius * 0.5, 0));
   pts.push(new THREE.Vector3(-radius * 0.866, +radius * 0.5, 0));
-  var hex = new THREE.Shape(pts);
-  geometry = new THREE.ShapeGeometry(hex);
-  material = new THREE.MeshBasicMaterial({
+  const hex = new THREE.Shape(pts);
+  const geometry = new THREE.ShapeGeometry(hex);
+  const material = new THREE.MeshBasicMaterial({
     color,
     wireframe: false,
     opacity,
@@ -25,20 +25,20 @@ function generateHexagon(height, radius, color, opacity, cstyid) {
 }
 
 function generateSide(rotX, rotY, posX, posY, width, height, color, opacity, cstyid) {
-  var geometry = new THREE.PlaneGeometry(width, height);
+  const geometry = new THREE.PlaneGeometry(width, height);
   geometry.vertices[0].set(-width/2, height, 0);
   geometry.vertices[1].set(width/2, height, 0);
   geometry.vertices[2].set(-width/2, 0, 0);
   geometry.vertices[3].set(width/2, 0, 0);
   geometry.verticesNeedUpdate=true;
-  var material = new THREE.MeshBasicMaterial({
+  const material = new THREE.MeshBasicMaterial({
     color,
     side: THREE.DoubleSide,
     wireframe: false,
     opacity,
     transparent: true
   });
-  var mesh = new THREE.Mesh(geometry, material);
+  const mesh = new THREE.Mesh(geometry, material);
   mesh.rotation.x = rotX;
   mesh.rotation.y = rotY;
   mesh.position.setX(posX);
@@ -49,7 +49,7 @@ function generateSide(rotX, rotY, posX, posY, width, height, color, opacity, cst
 }
 
 function generateHexagonSides(x, y, height, color, opacity, cstyid) {
-  var group = new THREE.Object3D();
+  const group = new THREE.Object3D();
 
   const side1 = generateSide(
     Math.PI / 2,
@@ -139,16 +139,13 @@ function generateHexagonSides(x, y, height, color, opacity, cstyid) {
 }
 
 function generateHexagonalPrism(x, y, height, color, opacity, cstyid) {
-  var group = new THREE.Object3D();
-
-  const bottomHex = generateHexagon(0, 1, color, 0, cstyid);
+  const group = new THREE.Object3D();
+  const bottomHex = generateHexagon(0, 1, 0x000000, 0, cstyid);
   group.add(bottomHex);
   const topHex = generateHexagon(height, 1, color, 0.8, cstyid);
   group.add(topHex);
-
-  const sides = generateHexagonSides(x, y, height, color, 0.2, cstyid);
+  const sides = generateHexagonSides(x, y, height, color, 0.1, cstyid);
   group.add(sides);
-
   return group;
 }
 
@@ -163,46 +160,48 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
   );
 
   renderer = new THREE.WebGLRenderer();
-  renderer.setClearColor( 0xf0f0f0 );
+  renderer.setClearColor( 0x000000 );
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.sortObjects = false;
 
   document.getElementById("mapcontainer").appendChild(renderer.domElement);
 
-  for (i = 0; i < data.length; i++) {
-    var x = data[i].x;
-    var y = data[i].y;
+  const drawHexObject = (value, key) => {
+      var x = value.x;
+      var y = value.y;
 
-    const separator = 2;
+      const separator = 2;
 
-    if (y % 2 == 0) {
-      x = x * separator;
-      y = y * separator * 0.866;
-    } else {
-      x = x * separator + separator / 2;
-      y = y * separator * 0.866;
-    }
+      if (y % 2 == 0) {
+        x = x * separator;
+        y = y * separator * 0.866;
+      } else {
+        x = x * separator + separator / 2;
+        y = y * separator * 0.866;
+      }
 
-    const hexGroup = generateHexagonalPrism(
-      x,
-      y,
-      heightFunc(data[i]),
-      colorFunc(data[i]),
-      opacityFunc(data[i]),
-      data[i].id
-    );
+      const hexGroup = generateHexagonalPrism(
+        x,
+        y,
+        heightFunc(value),
+        colorFunc(value),
+        opacityFunc(value),
+        key
+      );
 
-    hexGroup.translateX(x);
-    hexGroup.translateY(y);
+      hexGroup.translateX(x);
+      hexGroup.translateY(y);
+      hexGroup.userData = value
+      hexGroup.userData.originX = hexGroup.position.x
+      hexGroup.userData.originY = hexGroup.position.y
+      scene.add(hexGroup);
+  };
 
-    hexGroup.userData = {originX: hexGroup.position.x, originY: hexGroup.position.y}
+  R.forEachObjIndexed(drawHexObject, data);
 
-    scene.add(hexGroup);
-  }
-
-  camera.position.z = 50;
-  camera.position.y = 10;
+  camera.position.z = 70;
+  camera.position.y = 0;
 
   window.addEventListener("resize", onWindowResize, false);
   function onWindowResize() {
@@ -211,12 +210,7 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     renderer.setSize(document.getElementById("mapcontainer").offsetWidth, document.getElementById("mapcontainer").offsetHeight, false);
   }
 
-  var controls = new THREE.OrbitControls(camera);
-
-  var light = new THREE.PointLight(0xffffff, 1, 1000);
-  light.position.set(0, 0, 100);
-  scene.add(light);
-
+  const controls = new THREE.OrbitControls(camera);
   raycaster = new THREE.Raycaster();
   document.addEventListener("mousemove", onDocumentMouseMove, false);
 
@@ -236,15 +230,9 @@ function animate() {
 }
 
 function render() {
-
     TWEEN.update();
-
-    // update the picking ray with the camera and mouse position
     raycaster.setFromCamera( mouse, camera );
-
-    // calculate objects intersecting the picking ray
-    var intersects = raycaster.intersectObjects( scene.children, true);
-
+    const intersects = raycaster.intersectObjects( scene.children, true);
     for ( var i = 0; i < intersects.length; i++ ) {
       hoverCallback(intersects[0].object.userData.cstyid)
     }
@@ -252,11 +240,10 @@ function render() {
     renderer.render( scene, camera );
     camera.aspect = document.getElementById("mapcontainer").offsetWidth / document.getElementById("mapcontainer").offsetHeight;
     camera.updateProjectionMatrix();
-
 }
 
 function tweenHexagonalPrism(hexObject, newHeight) {
-  var adjustHeight = new TWEEN.Tween({ x: hexObject.children[1].position.z })
+  new TWEEN.Tween({ x: hexObject.children[1].position.z })
     .to({ x: newHeight }, 5000)
     .onUpdate(function() {
 
@@ -272,38 +259,33 @@ function tweenHexagonalPrism(hexObject, newHeight) {
       }
     })
     .start();
-
 }
 
 function tweenExplodeMap(hexObject) {
-    var explode = new TWEEN.Tween({ x: 1 })
+    new TWEEN.Tween({ x: 1 })
     .to({ x: 20 }, 3000)
     .onUpdate(function() {
       hexObject.position.x = hexObject.userData.originX * this.x
       hexObject.position.y = hexObject.userData.originY * this.x
-      // hexObject.scale.x = 1 - this.x / 20 * 0.9
-      // hexObject.scale.y = 1 - this.x / 20 * 0.9
     })
     .easing(TWEEN.Easing.Exponential.InOut)
     .start();
 
 
-    var unexplode = new TWEEN.Tween({ x: 20 })
+    new TWEEN.Tween({ x: 20 })
     .to({ x: 1 }, 3000)
     .onUpdate(function() {
       hexObject.position.x = hexObject.userData.originX * this.x
       hexObject.position.y = hexObject.userData.originY * this.x
-      // hexObject.scale.x = 1 - this.x / 20 * 0.9
-      // hexObject.scale.y = 1 - this.x / 20 * 0.9
     })
     .easing(TWEEN.Easing.Exponential.InOut)
     .delay(5000)
     .start();
 }
 
-function flattenHexMap() {
+function setHeight(height = 0) {
   var tween = x => {
-    if(x.type != "PointLight") {tweenHexagonalPrism(x,0)};
+    if(x.type != "PointLight") {tweenHexagonalPrism(x,height)};
   }
   R.forEach(tween, scene.children);
 }
@@ -311,6 +293,54 @@ function flattenHexMap() {
 function explodeHexMap() {
   var tween = x => {
     if(x.type != "PointLight") {tweenExplodeMap(x,0)};
+  }
+  R.forEach(tween, scene.children);
+}
+
+function tweenRectangleMap(hexObject, count) {
+    const targetX = count / 25 * 2 - 25
+    const targetY = count % 25 * 2 - 25
+
+    new TWEEN.Tween({ x: hexObject.userData.originX, y: hexObject.userData.originY })
+    .to({ x: targetX, y: targetY }, 3000)
+    .onUpdate(function() {
+      hexObject.position.x = this.x
+      hexObject.position.y = this.y
+    })
+    .easing(TWEEN.Easing.Exponential.InOut)
+    .start();
+
+}
+
+function rectangleHexMap() {
+  var count = 0;
+  var tween = x => {
+    if(x.type != "PointLight") {
+      count = count + 1
+      tweenRectangleMap(x, count)};
+  }
+
+  const sortByParty = R.sortWith([
+    R.descend(R.path(["userData", "first_party"])),
+    R.descend(R.compose(x => parseInt(x), R.path(["userData", "majority"])))
+  ]);
+  R.forEach(tween, sortByParty(scene.children));
+}
+
+function tweenNewVis(hexObject, colorFunc, heightFunc, opacityFunc) {
+  new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y })
+    .to({ x: hexObject.userData.originX, y: hexObject.userData.originY }, 1000)
+    .onUpdate(function() {
+      hexObject.position.x = this.x
+      hexObject.position.y = this.y
+    })
+    .easing(TWEEN.Easing.Exponential.InOut)
+    .start();
+}
+
+function animateTo(colorFunc, heightFunc, opacityFunc) {
+var tween = object => {
+    if(object.type != "PointLight") {tweenNewVis(object, colorFunc, heightFunc, opacityFunc)};
   }
   R.forEach(tween, scene.children);
 }

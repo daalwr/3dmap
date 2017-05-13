@@ -17,6 +17,6 @@ const extractCoordinates = function(i, key, obj) {
   return Object.assign({ id: key, x: i.q, y: i.r }, iWithoutQorR);
 };
 
-const list = R.values(R.mapObjIndexed(extractCoordinates, combinedData));
+const list = R.mapObjIndexed(extractCoordinates, combinedData);
 
 fs.writeFileSync('combined.json', JSON.stringify(list));
