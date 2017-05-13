@@ -220,8 +220,6 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     mouse.y = -((event.clientY-boundingBox.top) / (document.getElementById("mapcontainer").firstChild.offsetHeight + 2)) * 2 + 1;
   }
 
-  document.addEventListener("touchmove", e => e.preventDefault());
-
     animate();
   }
 
@@ -328,20 +326,53 @@ function rectangleHexMap() {
   R.forEach(tween, sortByParty(scene.children));
 }
 
-function tweenNewVis(hexObject, colorFunc, heightFunc, opacityFunc) {
-  new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y })
-    .to({ x: hexObject.userData.originX, y: hexObject.userData.originY }, 1000)
+function tweenNewVis(hexObject, colorFunc, heightFunc, positionFunc) {
+
+  const targetX = positionFunc(hexObject.userData).x
+  const targetY = positionFunc(hexObject.userData).y
+
+  new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y, height: hexObject.children[1].position.z })
+    .to({ x: targetX, y: targetY, height: heightFunc(hexObject.userData) }, 1000)
     .onUpdate(function() {
       hexObject.position.x = this.x
       hexObject.position.y = this.y
+      const topHex = hexObject.children[1]
+      topHex.position.setZ(this.height)
+
+      const sides = hexObject.children[2].children
+
+      for(var i =0; i<6; i++) {
+        sides[i].geometry.vertices[0].setY(this.height)
+        sides[i].geometry.vertices[1].setY(this.height)
+        sides[i].geometry.verticesNeedUpdate = true
+      }
+    })
+    .easing(TWEEN.Easing.Exponential.InOut)
+    .start();
+
+    new TWEEN.Tween(hexObject.children[1].material.color)
+    .to(colorFunc(hexObject.userData), 1000)
+    .onUpdate(function() {
+      const newColor = {r: this.r, g: this.g, b: this.b}
+      hexObject.children[1].material.color.copy(newColor)
+      hexObject.children[2].children[0].material.color.copy(newColor)
+      hexObject.children[2].children[1].material.color.copy(newColor)
+      hexObject.children[2].children[2].material.color.copy(newColor)
+      hexObject.children[2].children[3].material.color.copy(newColor)
+      hexObject.children[2].children[4].material.color.copy(newColor)
+      hexObject.children[2].children[5].material.color.copy(newColor)
     })
     .easing(TWEEN.Easing.Exponential.InOut)
     .start();
 }
 
-function animateTo(colorFunc, heightFunc, opacityFunc) {
-var tween = object => {
-    if(object.type != "PointLight") {tweenNewVis(object, colorFunc, heightFunc, opacityFunc)};
+function animateTo(colorFunc, heightFunc, positionFunc) {
+  console.log("AnimateTo called with ")
+  console.log(colorFunc)
+  console.log(heightFunc)
+  console.log(positionFunc)
+  const tween = object => {
+    if(object.type != "PointLight") {tweenNewVis(object, colorFunc, heightFunc, positionFunc)};
   }
   R.forEach(tween, scene.children);
 }

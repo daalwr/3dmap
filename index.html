@@ -27,6 +27,19 @@
 	<div id="maprow" class="row">
 	<div id="mapcontainer" class="col-md-9"></div>
 		<div class="col-md-3">
+			<button id="party" type="button" class="btn btn-default">Reset</button>
+			<button id="colorCon" type="button" class="btn btn-default">Con</button>
+			<button id="colorDUP" type="button" class="btn btn-default">DUP</button>
+			<button id="colorInd" type="button" class="btn btn-default">Ind</button>
+			<button id="colorSDLP" type="button" class="btn btn-default">SDLP</button>
+			<button id="colorSF" type="button" class="btn btn-default">SF</button>
+			<button id="colorUUP" type="button" class="btn btn-default">UUP</button>
+			<button id="colorLab" type="button" class="btn btn-default">Lab</button>
+			<button id="colorSNP" type="button" class="btn btn-default">SNP</button>
+			<button id="colorLD" type="button" class="btn btn-default">LD</button>
+			<button id="colorUKIP" type="button" class="btn btn-default">UKIP</button>
+			<button id="colorGreen" type="button" class="btn btn-default">Green</button>
+			<button id="colorPC" type="button" class="btn btn-default">PC</button>
 			<h1>Information about constituency:</h1>
 			<h2>ID: <span id="constId"></span></h2>	
 			<h2>Name: <span id="constName"></span></h2>	
@@ -55,42 +68,73 @@
 		});
 		var data = JSON.parse(data.responseText);
 
-		const generateColor = obj => {
+
+		// Colouring Functions
+
+		const colorCon = new THREE.Color(0x2254F4);
+		const colorDUP = new THREE.Color(0x4f4c9a);
+		const colorInd = new THREE.Color(0xdfdfdf);
+		const colorSDLP = new THREE.Color(0xfbb675);
+		const colorSF = new THREE.Color(0xb6c727);
+		const colorUUP = new THREE.Color(0xEF3AAB);
+		const colorLab = new THREE.Color(0xD60303);
+		const colorSNP = new THREE.Color(0xFF6700);
+		const colorLD = new THREE.Color(0xF9BC26);
+		const colorUKIP = new THREE.Color(0x722EA5);
+		const colorGreen = new THREE.Color(0x0DBC37);
+		const colorPC = new THREE.Color(0x1DD3A7);
+		const colorSpk = new THREE.Color(0x909090);
+
+
+		const colorWithParty = obj => {
 			switch (obj.first_party) {
-				case "Con":
-					return 0x2254F4;
-				case "DUP":
-					return 0x4f4c9a;
-				case "Ind":
-					return 0xdfdfdf;
-				case "SDLP":
-					return 0xfbb675;
-				case "SF":
-					return 0xb6c727;
-				case "UUP":
-					return 0xEF3AAB;
-				case "Lab":
-					return 0xD60303;
-				case "SNP":
-					return 0xFF6700;
-				case "LD":
-					return 0xF9BC26;
-				case "UKIP":
-					return 0x722EA5;
-				case "Green":
-					return 0x0DBC37;
-				case "PC":
-					return 0x1DD3A7;
-				case "Spk":
-					return 0x909090;
-				default:
-					return 0x000000;
+				case "Con": return colorCon;
+				case "DUP": return colorDUP;
+				case "Ind": return colorInd;
+				case "SDLP": return colorSDLP;
+				case "SF": return colorSF;
+				case "UUP": return colorUUP;
+				case "Lab": return colorLab;
+				case "SNP": return colorSNP;
+				case "LD": return colorLD;
+				case "UKIP": return colorUKIP;
+				case "Green": return colorGreen;
+				case "PC": return colorPC;
+				case "Spk": return colorSpk;
+				default: return new THREE.Color(0x000000);
 			}
 		}
 
-		const generateHeight = obj => {
+		const colorWithCon = obj => {return colorCon}
+		const colorWithDUP = obj => {return colorDUP}
+		const colorWithInd = obj => {return colorInd}
+		const colorWithSDLP = obj => {return colorSDLP}
+		const colorWithSF = obj => {return colorSF}
+		const colorWithUUP = obj => {return colorUUP}
+		const colorWithLab = obj => {return colorLab}
+		const colorWithSNP = obj => {return colorSNP}
+		const colorWithLD = obj => {return colorLD}
+		const colorWithUKIP = obj => {return colorUKIP}
+		const colorWithGreen = obj => {return colorGreen}
+		const colorWithPC = obj => {return colorPC}
+
+		// Height Functions
+		const heightToMajority = obj => {
 			return parseInt(obj.majority) / 3000
 		}
+
+		const heightToCon = obj => {return parseInt(obj.con) / 3000}
+		const heightToDUP = obj => {return parseInt(obj.dup) / 3000}
+		const heightToInd = obj => {return parseInt(obj.other) / 3000}
+		const heightToSDLP = obj => {return parseInt(obj.sdlp) / 3000}
+		const heightToSF = obj => {return parseInt(obj.sf) / 3000}
+		const heightToUUP = obj => {return parseInt(obj.uup) / 3000}
+		const heightToLab = obj => {return parseInt(obj.lab) / 3000}
+		const heightToSNP = obj => {return parseInt(obj.snp) / 3000}
+		const heightToLD = obj => {return parseInt(obj.ld) / 3000}
+		const heightToUKIP = obj => {return parseInt(obj.ukip) / 3000}
+		const heightToGreen = obj => {return parseInt(obj.green) / 3000}
+		const heightToPC = obj => {return parseInt(obj.pc) / 3000}
 
 		const generateOpacity = obj => { return 0.5 }
 
@@ -102,7 +146,31 @@
 			$("#majority").text(foundData.majority);
 		}
 
-		generateHexMap(data, generateColor, generateHeight, generateOpacity, hoverCallback)
+		generateHexMap(data, colorWithParty, heightToMajority, generateOpacity, hoverCallback)
+		
+		// Layout Functions
+
+		const mapPosition = obj => {
+			return {x: obj.originX, y: obj.originY}
+		}
+
+		// Button wiring
+		$( "#party" ).click(function() {
+			animateTo(colorWithParty, heightToMajority, mapPosition)
+		});
+		$('#colorCon').click(function() {animateTo(colorWithCon, heightToCon, mapPosition)})
+		$('#colorDUP').click(function() {animateTo(colorWithDUP, heightToDUP, mapPosition)})
+		$('#colorInd').click(function() {animateTo(colorWithInd, heightToInd, mapPosition)})
+		$('#colorSDLP').click(function() {animateTo(colorWithSDLP, heightToSDLP, mapPosition)})
+		$('#colorSF').click(function() {animateTo(colorWithSF, heightToSF, mapPosition)})
+		$('#colorUUP').click(function() {animateTo(colorWithUUP, heightToUUP, mapPosition)})
+		$('#colorLab').click(function() {animateTo(colorWithLab, heightToLab, mapPosition)})
+		$('#colorSNP').click(function() {animateTo(colorWithSNP, heightToSNP, mapPosition)})
+		$('#colorLD').click(function() {animateTo(colorWithLD, heightToLD, mapPosition)})
+		$('#colorUKIP').click(function() {animateTo(colorWithUKIP, heightToUKIP, mapPosition)})
+		$('#colorGreen').click(function() {animateTo(colorWithGreen, heightToGreen, mapPosition)})
+		$('#colorPC').click(function() {animateTo(colorWithPC, heightToPC, mapPosition)})
+
 	</script>
 </body>
 
