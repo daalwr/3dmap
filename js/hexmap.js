@@ -201,7 +201,6 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
   R.forEachObjIndexed(drawHexObject, data);
 
   camera.position.z = 70;
-  camera.position.y = 0;
 
   window.addEventListener("resize", onWindowResize, false);
   function onWindowResize() {
@@ -210,7 +209,10 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     renderer.setSize(document.getElementById("mapcontainer").offsetWidth, document.getElementById("mapcontainer").offsetHeight, false);
   }
 
-  const controls = new THREE.OrbitControls(camera);
+  const controls = new THREE.OrbitControls(camera)
+  controls.target = new THREE.Vector3(0,10,0)
+  camera.lookAt(new THREE.Vector3(0,10,0))
+
   raycaster = new THREE.Raycaster();
   document.addEventListener("mousemove", onDocumentMouseMove);
   function onDocumentMouseMove(event) {

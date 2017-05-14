@@ -2,7 +2,16 @@
 
 <head>
 	<title>Hex Tiles</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="css/darkly.css" >
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="js/three.js"></script>
+	<script src="js/orbit.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+	<script src="js/hexmap.js"></script>
+
 		<style>
 		body {
 			margin: 0;
@@ -15,53 +24,89 @@
 			height: 100%;
 		}
 
+		.data-column {
+			padding-top: 60px;
+		}
+
 	</style>
 </head>
 <body>
 <div id="mainContainer" class="container-fluid">
-	<div class="row">
-		<div class="col-md-6">
-			<h1>UK 3D Hex Map</h1>
-		</div>
-	</div>
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+            aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+          <a class="navbar-brand" href="#">UK Hex Map</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li class="active"><a id="party" href="#">Summary </a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Colour by Party <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li role="separator" class="divider"></li>
+								<li><a href="#" id="colorCon">Con</a></li>
+								<li><a href="#" id="colorDUP">DUP</a></li>
+								<li><a href="#" id="colorInd">Ind</a></li>
+								<li><a href="#" id="colorSDLP">SDLP</a></li>
+								<li><a href="#" id="colorSF">SF</a></li>
+								<li><a href="#" id="colorUUP">UUP</a></li>
+								<li><a href="#" id="colorLab">Lab</a></li>
+								<li><a href="#" id="colorSNP">SNP</a></li>
+								<li><a href="#" id="colorLD">LD</a></li>
+								<li><a href="#" id="colorUKIP">UKIP</a></li>
+								<li><a href="#" id="colorGreen">Green</a></li>
+								<li><a href="#" id="colorPC">PC</a></li>
+              </ul>
+            </li>
+						<li><a href="#" id="rectangle">Rectangle</a></li>
+						<li><a href="#" id="explode">Explode</a></li>
+          </ul>
+					<!--TODO - Postcode search? -->
+          <!--<form class="navbar-form navbar-left">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Search">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form><--></-->
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Find out more <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Source code</a></li>
+                <li><a href="#">Data Sources</a></li>
+                <li><a href="#">Twitter</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
 	<div id="maprow" class="row">
 	<div id="mapcontainer" class="col-md-9"></div>
-		<div class="col-md-3">
-			<button id="party" type="button" class="btn btn-default">Reset</button>
-			<button id="colorCon" type="button" class="btn btn-default">Con</button>
-			<button id="colorDUP" type="button" class="btn btn-default">DUP</button>
-			<button id="colorInd" type="button" class="btn btn-default">Ind</button>
-			<button id="colorSDLP" type="button" class="btn btn-default">SDLP</button>
-			<button id="colorSF" type="button" class="btn btn-default">SF</button>
-			<button id="colorUUP" type="button" class="btn btn-default">UUP</button>
-			<button id="colorLab" type="button" class="btn btn-default">Lab</button>
-			<button id="colorSNP" type="button" class="btn btn-default">SNP</button>
-			<button id="colorLD" type="button" class="btn btn-default">LD</button>
-			<button id="colorUKIP" type="button" class="btn btn-default">UKIP</button>
-			<button id="colorGreen" type="button" class="btn btn-default">Green</button>
-			<button id="colorPC" type="button" class="btn btn-default">PC</button>
-			<button id="rectangle" type="button" class="btn btn-default">Rectangle</button>
-			<button id="explode" type="button" class="btn btn-default">Explode</button>
-			<h1>Information about constituency:</h1>
+		<div class="col-md-3 data-column">
 			<h2>ID: <span id="constId"></span></h2>	
 			<h2>Name: <span id="constName"></span></h2>	
 			<h2>County: <span id="countyName"></span></h2>
 			<h2>Majority: <span id="majority"></span></h2>
-			<br />
-			<br />
-			<p>Created by Daniel Wright</p>
+
+
+			<!--Move to footer?-->
+			<!--<p>Created by Daniel Wright</p>
 			<a href="https://github.com/daalwr/3dmap">Github</a></p>
-			<p>Hexagon layout from <a href="https://github.com/odileeds/hexmaps">https://github.com/odileeds/hexmaps</a> and 2015 election results data from <a href="http://www.data.parliament.uk/dataset/general-election-2015">http://www.data.parliament.uk/dataset/general-election-2015</a></p>
+			<p>Hexagon layout from <a href="https://github.com/odileeds/hexmaps">https://github.com/odileeds/hexmaps</a> and 2015 election results data from <a href="http://www.data.parliament.uk/dataset/general-election-2015">http://www.data.parliament.uk/dataset/general-election-2015</a></p>-->
 		</div>
 	</div>
 </div>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="js/three.js"></script>
-	<script src="js/orbit.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
-	<script src="js/hexmap.js"></script>
 	<script>
 		var data = $.ajax({
 			url: "data/combined3.json",
@@ -106,18 +151,46 @@
 			}
 		}
 
-		const colorWithCon = obj => {return colorCon}
-		const colorWithDUP = obj => {return colorDUP}
-		const colorWithInd = obj => {return colorInd}
-		const colorWithSDLP = obj => {return colorSDLP}
-		const colorWithSF = obj => {return colorSF}
-		const colorWithUUP = obj => {return colorUUP}
-		const colorWithLab = obj => {return colorLab}
-		const colorWithSNP = obj => {return colorSNP}
-		const colorWithLD = obj => {return colorLD}
-		const colorWithUKIP = obj => {return colorUKIP}
-		const colorWithGreen = obj => {return colorGreen}
-		const colorWithPC = obj => {return colorPC}
+		function scaleColor(votes, color, maxVote) {
+			const colorCopy = new THREE.Color(color)
+			var scale = votes / maxVote
+			if(scale > 1) {
+				scale = 1
+			}
+			return colorCopy.multiplyScalar(scale)
+		}
+
+		const values = R.values(data)
+
+		function calculateMaxVote(getVotesFunc) {
+			return R.reduce((a,b) => R.max(a,b), 0, R.map(getVotesFunc, values))
+		}
+
+		const maxConVote = calculateMaxVote(obj => parseInt(obj.con)) 
+		const maxDUPVote = calculateMaxVote(obj => parseInt(obj.dup)) 
+		const maxIndVote = calculateMaxVote(obj => parseInt(obj.other)) 
+		const maxSDLPVote = calculateMaxVote(obj => parseInt(obj.sdlp)) 
+		const maxSFVote = calculateMaxVote(obj => parseInt(obj.sf)) 
+		const maxUUPVote = calculateMaxVote(obj => parseInt(obj.uup)) 
+		const maxLabVote = calculateMaxVote(obj => parseInt(obj.lab)) 
+		const maxSNPVote = calculateMaxVote(obj => parseInt(obj.snp)) 
+		const maxLDVote = calculateMaxVote(obj => parseInt(obj.ld)) 
+		const maxUKIPVote = calculateMaxVote(obj => parseInt(obj.ukip)) 
+		const maxGreenVote = calculateMaxVote(obj => parseInt(obj.green)) 
+		const maxPCVote = calculateMaxVote(obj => parseInt(obj.pc)) 
+
+		const colorWithCon = obj => {return scaleColor(obj.con, colorCon, maxConVote)}
+		const colorWithDUP = obj => {return scaleColor(obj.dup, colorDUP, maxDUPVote)}
+		const colorWithInd = obj => {return scaleColor(obj.other, colorInd, maxIndVote)}
+		const colorWithSDLP = obj => {return scaleColor(obj.sdlp, colorSDLP, maxSDLPVote)}
+		const colorWithSF = obj => {return scaleColor(obj.sf, colorSF, maxSFVote)}
+		const colorWithUUP = obj => {return scaleColor(obj.uup, colorUUP, maxUUPVote)}
+		const colorWithLab = obj => {return scaleColor(obj.lab, colorLab, maxLabVote)}
+		const colorWithSNP = obj => {return scaleColor(obj.snp, colorSNP, maxSNPVote)}
+		const colorWithLD = obj => {return scaleColor(obj.ld, colorLD, maxLDVote)}
+		const colorWithUKIP = obj => {return scaleColor(obj.ukip, colorUKIP, maxUKIPVote)}
+		const colorWithGreen = obj => {return scaleColor(obj.green, colorGreen, maxGreenVote)}
+		const colorWithPC = obj => {return scaleColor(obj.pc, colorPC, maxPCVote)}
 
 		// Height Functions
 		const heightToMajority = obj => {
