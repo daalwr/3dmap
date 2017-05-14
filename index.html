@@ -30,6 +30,45 @@
 			overflow: auto;
 		}
 
+		.color-con{
+			color: #2254F4
+		}
+		.color-lab{
+			color: #D60303
+		}
+		.color-ld{
+			color: #F9BC26
+		}
+		.color-ukip{
+			color: #722EA5
+		}
+		.color-green{
+			color: #0DBC37
+		}
+		.color-snp{
+			color: #FF6700
+		}
+		.color-pc{
+			color: #1DD3A7
+		}
+		.color-dup{
+			color: #4f4c9a
+		}
+		.color-sf{
+			color: #b6c727
+		}
+		.color-sdlp{
+			color: #fbb675
+		}
+		.color-uup{
+			color: #EF3AAB
+		}
+		.color-alliance{
+			color: #909090
+		}
+		.color-other{
+			color: #909090
+		}
 	</style>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -53,25 +92,26 @@
 					<ul class="nav navbar-nav">
 						<li id="nav-summary" class="active"><a id="summary" href="#">Summary </a></li>
 						<li id="nav-by-party" class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">By Party <span class="caret"></span></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Votes By Party <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a href="#" id="colorCon">Con</a></li>
-								<li><a href="#" id="colorDUP">DUP</a></li>
-								<li><a href="#" id="colorInd">Ind</a></li>
-								<li><a href="#" id="colorSDLP">SDLP</a></li>
-								<li><a href="#" id="colorSF">SF</a></li>
-								<li><a href="#" id="colorUUP">UUP</a></li>
-								<li><a href="#" id="colorLab">Lab</a></li>
-								<li><a href="#" id="colorSNP">SNP</a></li>
-								<li><a href="#" id="colorLD">LD</a></li>
-								<li><a href="#" id="colorUKIP">UKIP</a></li>
-								<li><a href="#" id="colorGreen">Green</a></li>
-								<li><a href="#" id="colorPC">PC</a></li>
+								<li><a class="color-con" href="#" id="colorCon">Con</a></li>
+								<li><a class="color-dup" href="#" id="colorDUP">DUP</a></li>
+								<li><a class="color-ind" href="#" id="colorInd">Ind</a></li>
+								<li><a class="color-sdlp" href="#" id="colorSDLP">SDLP</a></li>
+								<li><a class="color-sf" href="#" id="colorSF">SF</a></li>
+								<li><a class="color-uup" href="#" id="colorUUP">UUP</a></li>
+								<li><a class="color-lab" href="#" id="colorLab">Lab</a></li>
+								<li><a class="color-snp" href="#" id="colorSNP">SNP</a></li>
+								<li><a class="color-ld" href="#" id="colorLD">LD</a></li>
+								<li><a class="color-ukip" href="#" id="colorUKIP">UKIP</a></li>
+								<li><a class="color-green" href="#" id="colorGreen">Green</a></li>
+								<li><a class="color-pc" href="#" id="colorPC">PC</a></li>
 							</ul>
 						</li>
 						<li id="nav-rectangle"><a href="#" id="rectangle">Rectangle</a></li>
 						<li id="nav-explode"><a href="#" id="explode">Explode</a></li>
 						<li id="nav-gains"><a href="#" id="gains">Gains</a></li>
+						<li id="nav-electorate"><a href="#" id="electorate">Electorate Size</a></li>
 					</ul>
 					<!--TODO - Postcode search? -->
 					<!--<form class="navbar-form navbar-left">
@@ -164,6 +204,7 @@ SOFTWARE.<br />
 		<div id="maprow" class="row">
 			<div id="mapcontainer" class="col-sm-9"></div>
 			<div class="col-sm-3 data-column hidden-xs ">
+				<p>data: 2015 General Election Results</p>
 				<p>ons_id: <span id="ons_id_label"></span></p>
 				<p>ons_region_id: <span id="ons_region_id_label"></span></p>
 				<p>constituency_name: <span id="constituency_name_label"></span></p>
@@ -182,19 +223,19 @@ SOFTWARE.<br />
 				<p>invalid_votes: <span id="invalid_votes_label"></span></p>
 				<p>majority: <span id="majority_label"></span></p>
 				<br />
-				<p style="color: #2254F4">con: <span id="con_label"></span></p>
-				<p style="color: #D60303">lab: <span id="lab_label"></span></p>
-				<p style="color: #F9BC26">ld: <span id="ld_label"></span></p>
-				<p style="color: #722EA5">ukip: <span id="ukip_label"></span></p>
-				<p style="color: #0DBC37">green: <span id="green_label"></span></p>
-				<p style="color: #FF6700">snp: <span id="snp_label"></span></p>
-				<p style="color: #1DD3A7">pc: <span id="pc_label"></span></p>
-				<p style="color: #4f4c9a">dup: <span id="dup_label"></span></p>
-				<p style="color: #b6c727">sf: <span id="sf_label"></span></p>
-				<p style="color: #fbb675">sdlp: <span id="sdlp_label"></span></p>
-				<p style="color: #EF3AAB">uup: <span id="uup_label"></span></p>
-				<p style="color: #909090">alliance: <span id="alliance_label"></span></p>
-				<p style="color: #909090">other: <span id="other_label"></span></p>
+				<p class="color-con">con: <span id="con_label"></span></p>
+				<p class="color-lab">lab: <span id="lab_label"></span></p>
+				<p class="color-ld">ld: <span id="ld_label"></span></p>
+				<p class="color-ukip">ukip: <span id="ukip_label"></span></p>
+				<p class="color-green">green: <span id="green_label"></span></p>
+				<p class="color-snp">snp: <span id="snp_label"></span></p>
+				<p class="color-pc">pc: <span id="pc_label"></span></p>
+				<p class="color-dup">dup: <span id="dup_label"></span></p>
+				<p class="color-sf">sf: <span id="sf_label"></span></p>
+				<p class="color-sdlp">sdlp: <span id="sdlp_label"></span></p>
+				<p class="color-uup">uup: <span id="uup_label"></span></p>
+				<p class="color-alliance">alliance: <span id="alliance_label"></span></p>
+				<p class="color-other">other: <span id="other_label"></span></p>
 			</div>
 		</div>
 	</div>
@@ -242,9 +283,9 @@ SOFTWARE.<br />
 			}
 		}
 
-		function scaleColor(votes, color, maxVote) {
+		function scaleColor(number, color, maxVote) {
 			const colorCopy = new THREE.Color(color)
-			var scale = votes / maxVote
+			var scale = number / maxVote
 			if (scale > 1) {
 				scale = 1
 			}
@@ -282,6 +323,8 @@ SOFTWARE.<br />
 		const colorWithUKIP = obj => { return scaleColor(obj.ukip, colorUKIP, maxUKIPVote) }
 		const colorWithGreen = obj => { return scaleColor(obj.green, colorGreen, maxGreenVote) }
 		const colorWithPC = obj => { return scaleColor(obj.pc, colorPC, maxPCVote) }
+		
+		const colorWithElectorateSize = obj => { return scaleColor(parseInt(obj.electorate) - 50000, new THREE.Color(0xFFFFFF), 30000) }
 
 		// Height Functions
 		const heightToMajority = obj => {
@@ -300,6 +343,8 @@ SOFTWARE.<br />
 		const heightToUKIP = obj => { return parseInt(obj.ukip) / 3000 }
 		const heightToGreen = obj => { return parseInt(obj.green) / 3000 }
 		const heightToPC = obj => { return parseInt(obj.pc) / 3000 }
+
+		const heightToElectorate = obj => { return parseInt(obj.electorate) / 3000 }
 
 		const generateOpacity = obj => { return 0.5 }
 
@@ -456,10 +501,13 @@ SOFTWARE.<br />
 				setActive("#nav-explode")
 				animateTo(colorWithParty, heightToMajority, explodePosition, null, showAlways)
 			})
-
 			$('#gains').click(function () {
 				setActive("#nav-gains")
 				animateTo(colorWithParty, heightToMajority, mapPosition, null, showGains)
+			})
+			$('#electorate').click(function () {
+				setActive("#nav-electorate")
+				animateTo(colorWithElectorateSize, heightToElectorate, mapPosition, null, showAlways)
 			})
 			
 	</script>
