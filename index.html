@@ -26,11 +26,10 @@
 		}
 
 		.data-column {
-			padding-top: 60px;
+			padding-top: 75px;
 			overflow: auto;
 		}
 
-		
 	</style>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -47,13 +46,13 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">UK Hex Map</a>
+					<a id="home" class="navbar-brand" href="#">UK Hex Map</a>
 				</div>
 
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
-						<li class="active"><a id="party" href="#">Summary </a></li>
-						<li class="dropdown">
+						<li id="nav-summary" class="active"><a id="summary" href="#">Summary </a></li>
+						<li id="nav-by-party" class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Colour by Party <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li role="separator" class="divider"></li>
@@ -71,8 +70,8 @@
 								<li><a href="#" id="colorPC">PC</a></li>
 							</ul>
 						</li>
-						<li><a href="#" id="rectangle">Rectangle</a></li>
-						<li><a href="#" id="explode">Explode</a></li>
+						<li id="nav-rectangle"><a href="#" id="rectangle">Rectangle</a></li>
+						<li id="nav-explode"><a href="#" id="explode">Explode</a></li>
 					</ul>
 					<!--TODO - Postcode search? -->
 					<!--<form class="navbar-form navbar-left">
@@ -81,20 +80,38 @@
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
           </form><-->
-					</-->
+
 					<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Find out more <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a href="#">Source code</a></li>
-								<li><a href="#">Data Sources</a></li>
-								<li><a href="#">Twitter</a></li>
+								<li><a href="https://github.com/daalwr/3dmap">Source code</a></li>
+								<li><a href="#" data-toggle="modal" data-target="#data-source-modal">Data Sources</a></li>
+								<li><a href="https://twitter.com/daalwr">Twitter</a></li>
 							</ul>
 						</li>
 					</ul>
 				</div>
 			</div>
 		</nav>
+
+	<div id="data-source-modal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Data Sources</h4>
+				</div>
+				<div class="modal-body">
+					<p>Hexagon layout from <a href="https://github.com/odileeds/hexmaps">https://github.com/odileeds/hexmaps</a><br />2015 election results data from <a href="http://www.data.parliament.uk/dataset/general-election-2015">http://www.data.parliament.uk/dataset/general-election-2015</a></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
 
 		<div id="maprow" class="row">
 			<div id="mapcontainer" class="col-sm-9"></div>
@@ -130,11 +147,6 @@
 				<p>uup: <span id="uup_label"></span></p>
 				<p>alliance: <span id="alliance_label"></span></p>
 				<p>other: <span id="other_label"></span></p>
-
-				<!--Move to footer?-->
-				<!--<p>Created by Daniel Wright</p>
-			<a href="https://github.com/daalwr/3dmap">Github</a></p>
-			<p>Hexagon layout from <a href="https://github.com/odileeds/hexmaps">https://github.com/odileeds/hexmaps</a> and 2015 election results data from <a href="http://www.data.parliament.uk/dataset/general-election-2015">http://www.data.parliament.uk/dataset/general-election-2015</a></p>-->
 			</div>
 		</div>
 	</div>
@@ -283,26 +295,90 @@
 			return { x: obj.originX, y: obj.originY }
 		}
 
+		const rectanglePosition = obj => {
+			return { x: obj.sortOrder / 25 * 2 - 25, y: obj.sortOrder % 25 * 2 - 25 }
+		}
+
+		const explodePosition = obj => {
+			return { x: obj.originX * 20, y: obj.originY * 20 }
+		}
+
+		const sortByParty = R.sortWith([  
+      R.descend(R.path(["userData", "first_party"])),
+      R.descend(R.compose(x => parseInt(x), R.path(["userData", "majority"])))
+    ]);
+
 		generateHexMap(data, colorWithParty, heightToMajority, generateOpacity, hoverCallback)
 
-		// Button wiring
-		$("#party").click(function () {
-			animateTo(colorWithParty, heightToMajority, mapPosition)
-		});
-		$('#colorCon').click(function () { animateTo(colorWithCon, heightToCon, mapPosition) })
-		$('#colorDUP').click(function () { animateTo(colorWithDUP, heightToDUP, mapPosition) })
-		$('#colorInd').click(function () { animateTo(colorWithInd, heightToInd, mapPosition) })
-		$('#colorSDLP').click(function () { animateTo(colorWithSDLP, heightToSDLP, mapPosition) })
-		$('#colorSF').click(function () { animateTo(colorWithSF, heightToSF, mapPosition) })
-		$('#colorUUP').click(function () { animateTo(colorWithUUP, heightToUUP, mapPosition) })
-		$('#colorLab').click(function () { animateTo(colorWithLab, heightToLab, mapPosition) })
-		$('#colorSNP').click(function () { animateTo(colorWithSNP, heightToSNP, mapPosition) })
-		$('#colorLD').click(function () { animateTo(colorWithLD, heightToLD, mapPosition) })
-		$('#colorUKIP').click(function () { animateTo(colorWithUKIP, heightToUKIP, mapPosition) })
-		$('#colorGreen').click(function () { animateTo(colorWithGreen, heightToGreen, mapPosition) })
-		$('#colorPC').click(function () { animateTo(colorWithPC, heightToPC, mapPosition) })
-		$('#rectangle').click(function () { rectangleHexMap() })
-		$('#explode').click(function () { explodeHexMap() })
+		function setActive(id) {
+			$(".active").removeClass("active")
+			$(id).addClass("active")
+		}
+
+			$("#home").click(function () {
+				setActive("#nav-summary")
+				animateTo(colorWithParty, heightToMajority, mapPosition)
+			});
+			$("#summary").click(function () {
+				setActive("#nav-summary")
+				animateTo(colorWithParty, heightToMajority, mapPosition)
+			});
+			$('#colorCon').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithCon, heightToCon, mapPosition)
+			})
+			$('#colorDUP').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithDUP, heightToDUP, mapPosition)
+			})
+			$('#colorInd').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithInd, heightToInd, mapPosition)
+			})
+			$('#colorSDLP').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithSDLP, heightToSDLP, mapPosition)
+			})
+			$('#colorSF').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithSF, heightToSF, mapPosition)
+			})
+			$('#colorUUP').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithUUP, heightToUUP, mapPosition)
+			})
+			$('#colorLab').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithLab, heightToLab, mapPosition)
+			})
+			$('#colorSNP').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithSNP, heightToSNP, mapPosition)
+			})
+			$('#colorLD').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithLD, heightToLD, mapPosition)
+			})
+			$('#colorUKIP').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithUKIP, heightToUKIP, mapPosition)
+			})
+			$('#colorGreen').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithGreen, heightToGreen, mapPosition)
+			})
+			$('#colorPC').click(function () {
+				setActive("#nav-by-party")
+				animateTo(colorWithPC, heightToPC, mapPosition)
+			})
+			$('#rectangle').click(function () {
+				setActive("#nav-rectangle")
+				animateTo(colorWithParty, heightToMajority, rectanglePosition, sortByParty)
+			})
+			$('#explode').click(function () {
+				setActive("#nav-explode")
+				animateTo(colorWithParty, heightToMajority, explodePosition)
+			})
 	</script>
 </body>
 

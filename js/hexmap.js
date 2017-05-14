@@ -199,6 +199,9 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
   };
 
   R.forEachObjIndexed(drawHexObject, data);
+  for(var i = 0; i< scene.children.length; i++) {
+    scene.children[i].userData.sortOrder = i
+  }
 
   camera.position.z = 70;
 
@@ -287,35 +290,6 @@ function explodeHexMap() {
   R.forEach(tween, scene.children);
 }
 
-function tweenRectangleMap(hexObject, count) {
-    const targetX = count / 25 * 2 - 25
-    const targetY = count % 25 * 2 - 25
-
-    new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y })
-    .to({ x: targetX, y: targetY }, 3000)
-    .onUpdate(function() {
-      hexObject.position.x = this.x
-      hexObject.position.y = this.y
-    })
-    .easing(TWEEN.Easing.Exponential.InOut)
-    .start();
-}
-
-function rectangleHexMap() {
-  var count = 0;
-  var tween = x => {
-    if(x.type != "PointLight") {
-      count = count + 1
-      tweenRectangleMap(x, count)};
-  }
-
-  const sortByParty = R.sortWith([
-    R.descend(R.path(["userData", "first_party"])),
-    R.descend(R.compose(x => parseInt(x), R.path(["userData", "majority"])))
-  ]);
-  R.forEach(tween, sortByParty(scene.children));
-}
-
 function tweenNewVis(hexObject, heightFunc, positionFunc) {
 
   const targetX = positionFunc(hexObject.userData).x
@@ -348,23 +322,28 @@ function tweenColor(hexObject, colorFunc) {
     .onUpdate(function() {
       const newColor = {r: this.r, g: this.g, b: this.b}
       hexObject.children[1].material.color.copy(newColor)
-      // TODO Clean up
-      hexObject.children[2].children[0].material.color.copy(newColor)
-      hexObject.children[2].children[1].material.color.copy(newColor)
-      hexObject.children[2].children[2].material.color.copy(newColor)
-      hexObject.children[2].children[3].material.color.copy(newColor)
-      hexObject.children[2].children[4].material.color.copy(newColor)
-      hexObject.children[2].children[5].material.color.copy(newColor)
+      for(var i =0; i<6; i++) {
+        hexObject.children[2].children[i].material.color.copy(newColor)
+      }
     })
     .easing(TWEEN.Easing.Exponential.InOut)
     .start();
 }
 
-function animateTo(colorFunc, heightFunc, positionFunc) {
+function animateTo(colorFunc, heightFunc, positionFunc, sortFunc) {
+
+  if(sortFunc) {
+    const sorted = sortFunc(scene.children)
+
+    for(var i=0; i< scene.children.length; i++) {
+      sorted[i].userData.sortOrder = i
+    }
+  }
+
   const tween = object => {
     if(object.type != "PointLight") {
-      tweenNewVis(object, heightFunc, positionFunc)
-      tweenColor(object, colorFunc)
+      if(positionFunc && heightFunc ){tweenNewVis(object, heightFunc, positionFunc)}
+      if(colorFunc) {tweenColor(object, colorFunc)}
     };
   }
   R.forEach(tween, scene.children);
