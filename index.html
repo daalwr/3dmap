@@ -53,9 +53,8 @@
 					<ul class="nav navbar-nav">
 						<li id="nav-summary" class="active"><a id="summary" href="#">Summary </a></li>
 						<li id="nav-by-party" class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Colour by Party <span class="caret"></span></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">By Party <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li role="separator" class="divider"></li>
 								<li><a href="#" id="colorCon">Con</a></li>
 								<li><a href="#" id="colorDUP">DUP</a></li>
 								<li><a href="#" id="colorInd">Ind</a></li>
@@ -86,8 +85,8 @@
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Find out more <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="https://github.com/daalwr/3dmap">Source code</a></li>
-								<li><a href="#" data-toggle="modal" data-target="#data-source-modal">Data Sources</a></li>
 								<li><a href="https://twitter.com/daalwr">Twitter</a></li>
+								<li><a href="#" data-toggle="modal" data-target="#data-source-modal">About</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -100,10 +99,58 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
-					<h4 class="modal-title">Data Sources</h4>
+					<h4 class="modal-title">Credits</h4>
 				</div>
 				<div class="modal-body">
-					<p>Hexagon layout from <a href="https://github.com/odileeds/hexmaps">https://github.com/odileeds/hexmaps</a><br />2015 election results data from <a href="http://www.data.parliament.uk/dataset/general-election-2015">http://www.data.parliament.uk/dataset/general-election-2015</a></p>
+					<p>
+MIT License <br />
+
+Copyright (c) Daniel Wright<br />
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:<br />
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.<br />
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.<br />
+----------------------------------------------------------------------------------------------------------<br />
+Hexagon layout data taken from <a href="https://github.com/odileeds/hexmaps">https://github.com/odileeds/hexmaps</a><br />
+
+MIT License<br />
+
+Copyright (c) 2017 ODI Leeds<br />
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:<br />
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.<br />
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.<br />
+----------------------------------------------------------------------------------------------------------<br />
+2015 election results data from <a href="http://www.data.parliament.uk/dataset/general-election-2015">http://www.data.parliament.uk/dataset/general-election-2015</a>
+</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -296,15 +343,34 @@
 		}
 
 		const rectanglePosition = obj => {
-			return { x: obj.sortOrder / 25 * 2 - 25, y: obj.sortOrder % 25 * 2 - 25 }
+			return { x: obj.sortOrder % 25 * 2 - 25, y: obj.sortOrder / 25 * 2 - 25 }
 		}
 
 		const explodePosition = obj => {
 			return { x: obj.originX * 20, y: obj.originY * 20 }
 		}
 
+		const partySortOrder = party => {
+			switch(party) {
+					case "Con": return 0;
+					case "DUP": return 8;
+					case "Ind": return 7;
+					case "SDLP": return 4;
+					case "SF": return 5;
+					case "UUP": return 6;
+					case "Lab": return 1;
+					case "SNP": return 3;
+					case "LD": return 2;
+					case "UKIP": return 9;
+					case "Green": return 10;
+					case "PC": return 11;
+					case "Spk": return 12;
+					default: return -1;
+			}
+		}
+
 		const sortByParty = R.sortWith([  
-      R.descend(R.path(["userData", "first_party"])),
+      R.descend(obj => partySortOrder(R.path(["userData", "first_party"])(obj))),
       R.descend(R.compose(x => parseInt(x), R.path(["userData", "majority"])))
     ]);
 
