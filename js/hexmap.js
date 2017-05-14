@@ -209,7 +209,7 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     renderer.setSize(document.getElementById("mapcontainer").offsetWidth, document.getElementById("mapcontainer").offsetHeight, false);
   }
 
-  const controls = new THREE.OrbitControls(camera)
+  const controls = new THREE.OrbitControls(camera, document.getElementById("mapcontainer"))
   controls.target = new THREE.Vector3(0,10,0)
   camera.lookAt(new THREE.Vector3(0,10,0))
 
@@ -217,7 +217,7 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
   document.addEventListener("mousemove", onDocumentMouseMove);
   function onDocumentMouseMove(event) {
     const boundingBox = document.getElementById("mapcontainer").firstChild.getBoundingClientRect()
-    event.preventDefault();
+    // event.preventDefault();
     mouse.x = (event.clientX - boundingBox.left) / document.getElementById("mapcontainer").firstChild.offsetWidth * 2 - 1;
     mouse.y = -((event.clientY-boundingBox.top) / (document.getElementById("mapcontainer").firstChild.offsetHeight + 2)) * 2 + 1;
   }
