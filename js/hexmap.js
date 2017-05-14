@@ -330,7 +330,26 @@ function tweenColor(hexObject, colorFunc) {
     .start();
 }
 
-function animateTo(colorFunc, heightFunc, positionFunc, sortFunc) {
+function tweenVisibility(hexObject, displayFunc) {
+  var targetOpacity
+
+  if(displayFunc(hexObject)) {
+    targetOpacity = 0.8
+  } else {
+    targetOpacity = 0
+  }
+
+  new TWEEN.Tween({op: hexObject.children[1].material.opacity})
+      .to({op: targetOpacity}, 1000)
+      .onUpdate(function() {
+          hexObject.children[1].material.opacity = this.op
+      })
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start()
+}
+
+// TODO Provide default args
+function animateTo(colorFunc, heightFunc, positionFunc, sortFunc, displayFunc) {
 
   if(sortFunc) {
     const sorted = sortFunc(scene.children)
@@ -344,7 +363,9 @@ function animateTo(colorFunc, heightFunc, positionFunc, sortFunc) {
     if(object.type != "PointLight") {
       if(positionFunc && heightFunc ){tweenNewVis(object, heightFunc, positionFunc)}
       if(colorFunc) {tweenColor(object, colorFunc)}
-    };
+      if(displayFunc) {tweenVisibility(object, displayFunc)}
+    }
   }
+
   R.forEach(tween, scene.children);
 }

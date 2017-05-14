@@ -71,6 +71,7 @@
 						</li>
 						<li id="nav-rectangle"><a href="#" id="rectangle">Rectangle</a></li>
 						<li id="nav-explode"><a href="#" id="explode">Explode</a></li>
+						<li id="nav-gains"><a href="#" id="gains">Gains</a></li>
 					</ul>
 					<!--TODO - Postcode search? -->
 					<!--<form class="navbar-form navbar-left">
@@ -374,6 +375,17 @@ SOFTWARE.<br />
       R.descend(R.compose(x => parseInt(x), R.path(["userData", "majority"])))
     ]);
 
+
+		const showAlways = obj => true
+
+		const showGains = obj => {
+			if(obj.userData.result.includes("gain")) {
+				return true
+			} else {
+				return false
+			}
+		}
+
 		generateHexMap(data, colorWithParty, heightToMajority, generateOpacity, hoverCallback)
 
 		function setActive(id) {
@@ -383,68 +395,74 @@ SOFTWARE.<br />
 
 			$("#home").click(function () {
 				setActive("#nav-summary")
-				animateTo(colorWithParty, heightToMajority, mapPosition)
+				animateTo(colorWithParty, heightToMajority, mapPosition, null, showAlways)
 			});
 			$("#summary").click(function () {
 				setActive("#nav-summary")
-				animateTo(colorWithParty, heightToMajority, mapPosition)
+				animateTo(colorWithParty, heightToMajority, mapPosition, null, showAlways)
 			});
 			$('#colorCon').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithCon, heightToCon, mapPosition)
+				animateTo(colorWithCon, heightToCon, mapPosition, null, showAlways)
 			})
 			$('#colorDUP').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithDUP, heightToDUP, mapPosition)
+				animateTo(colorWithDUP, heightToDUP, mapPosition, null, showAlways)
 			})
 			$('#colorInd').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithInd, heightToInd, mapPosition)
+				animateTo(colorWithInd, heightToInd, mapPosition, null, showAlways)
 			})
 			$('#colorSDLP').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithSDLP, heightToSDLP, mapPosition)
+				animateTo(colorWithSDLP, heightToSDLP, mapPosition, null, showAlways)
 			})
 			$('#colorSF').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithSF, heightToSF, mapPosition)
+				animateTo(colorWithSF, heightToSF, mapPosition, null, showAlways)
 			})
 			$('#colorUUP').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithUUP, heightToUUP, mapPosition)
+				animateTo(colorWithUUP, heightToUUP, mapPosition, null, showAlways)
 			})
 			$('#colorLab').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithLab, heightToLab, mapPosition)
+				animateTo(colorWithLab, heightToLab, mapPosition, null, showAlways)
 			})
 			$('#colorSNP').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithSNP, heightToSNP, mapPosition)
+				animateTo(colorWithSNP, heightToSNP, mapPosition, null, showAlways)
 			})
 			$('#colorLD').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithLD, heightToLD, mapPosition)
+				animateTo(colorWithLD, heightToLD, mapPosition, null, showAlways)
 			})
 			$('#colorUKIP').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithUKIP, heightToUKIP, mapPosition)
+				animateTo(colorWithUKIP, heightToUKIP, mapPosition, null, showAlways)
 			})
 			$('#colorGreen').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithGreen, heightToGreen, mapPosition)
+				animateTo(colorWithGreen, heightToGreen, mapPosition, null, showAlways)
 			})
 			$('#colorPC').click(function () {
 				setActive("#nav-by-party")
-				animateTo(colorWithPC, heightToPC, mapPosition)
+				animateTo(colorWithPC, heightToPC, mapPosition, null, showAlways)
 			})
 			$('#rectangle').click(function () {
 				setActive("#nav-rectangle")
-				animateTo(colorWithParty, heightToMajority, rectanglePosition, sortByParty)
+				animateTo(colorWithParty, heightToMajority, rectanglePosition, sortByParty, showAlways)
 			})
 			$('#explode').click(function () {
 				setActive("#nav-explode")
-				animateTo(colorWithParty, heightToMajority, explodePosition)
+				animateTo(colorWithParty, heightToMajority, explodePosition, null, showAlways)
 			})
+
+			$('#gains').click(function () {
+				setActive("#nav-gains")
+				animateTo(colorWithParty, heightToMajority, mapPosition, null, showGains)
+			})
+			
 	</script>
 </body>
 
