@@ -265,31 +265,6 @@ function tweenHexagonalPrism(hexObject, newHeight) {
     .start();
 }
 
-function tweenExplodeMap(hexObject) {
-    new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y })
-    .to({ x: hexObject.userData.originX * 20, y: hexObject.userData.originY * 20 }, 3000)
-    .onUpdate(function() {
-      hexObject.position.x = this.x
-      hexObject.position.y = this.y
-    })
-    .easing(TWEEN.Easing.Exponential.InOut)
-    .start();
-}
-
-function setHeight(height = 0) {
-  var tween = x => {
-    if(x.type != "PointLight") {tweenHexagonalPrism(x,height)};
-  }
-  R.forEach(tween, scene.children);
-}
-
-function explodeHexMap() {
-  var tween = x => {
-    if(x.type != "PointLight") {tweenExplodeMap(x,0)};
-  }
-  R.forEach(tween, scene.children);
-}
-
 function tweenNewVis(hexObject, heightFunc, positionFunc) {
 
   const targetX = positionFunc(hexObject.userData).x
@@ -336,7 +311,7 @@ function tweenVisibility(hexObject, displayFunc) {
   if(displayFunc(hexObject)) {
     targetOpacity = 0.8
   } else {
-    targetOpacity = 0
+    targetOpacity = 0.2
   }
 
   new TWEEN.Tween({op: hexObject.children[1].material.opacity})
