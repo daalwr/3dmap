@@ -6,11 +6,10 @@
 	<meta name="twitter:site" content="@daalwr" />
 	<meta name="twitter:title" content="UK 3D Hex Map" />
 	<meta name="twitter:description" content="A 3D Hexagon Map of the UK visualising constituency voting data." />
-	<meta name="twitter:image" content="img/twitter_img.png" />
-	<meta property="og:image" content="img/twitter_img.png"/>
+	<meta name="twitter:image" content="http//i.imgur.com/FH38fwc.png" />
+	<meta property="og:image" content="http//i.imgur.com/FH38fwc.png"/>
 	<meta property="og:title" content="UK 3D Hex Map"/>
 	<meta property="og:description" content="A 3D Hexagon Map of the UK visualising constituency voting data."/>
-
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
@@ -359,37 +358,36 @@ SOFTWARE.<br />
 
 		const generateOpacity = obj => { return 0.5 }
 
-		const hoverCallback = (constId) => {
-			const foundData = data[constId]
-			$("#ons_id_label").text(foundData.ons_id);
-				$("#ons_id_label").text(foundData.ons_id)
-				$("#ons_region_id_label").text(foundData.ons_region_id)
-				$("#constituency_name_label").text(foundData.constituency_name)
-				$("#county_name_label").text(foundData.county_name)
-				$("#region_name_label").text(foundData.region_name)
-				$("#country_name_label").text(foundData.country_name)
-				$("#constituency_type_label").text(foundData.constituency_type)
-				$("#declaration_time_label").text(foundData.declaration_time)
-				$("#result_label").text(foundData.result)
-				$("#first_party_label").text(foundData.first_party)
-				$("#second_party_label").text(foundData.second_party)
-				$("#electorate_label").text(foundData.electorate)
-				$("#valid_votes_label").text(foundData.valid_votes)
-				$("#invalid_votes_label").text(foundData.invalid_votes)
-				$("#majority_label").text(foundData.majority)
-				$("#con_label").text(foundData.con)
-				$("#lab_label").text(foundData.lab)
-				$("#ld_label").text(foundData.ld)
-				$("#ukip_label").text(foundData.ukip)
-				$("#green_label").text(foundData.green)
-				$("#snp_label").text(foundData.snp)
-				$("#pc_label").text(foundData.pc)
-				$("#dup_label").text(foundData.dup)
-				$("#sf_label").text(foundData.sf)
-				$("#sdlp_label").text(foundData.sdlp)
-				$("#uup_label").text(foundData.uup)
-				$("#alliance_label").text(foundData.alliance)
-				$("#other_label").text(foundData.other)
+		const hoverCallback = (hexObjectUserData) => {
+				$("#ons_id_label").text(hexObjectUserData.ons_id);
+				$("#ons_id_label").text(hexObjectUserData.ons_id)
+				$("#ons_region_id_label").text(hexObjectUserData.ons_region_id)
+				$("#constituency_name_label").text(hexObjectUserData.constituency_name)
+				$("#county_name_label").text(hexObjectUserData.county_name)
+				$("#region_name_label").text(hexObjectUserData.region_name)
+				$("#country_name_label").text(hexObjectUserData.country_name)
+				$("#constituency_type_label").text(hexObjectUserData.constituency_type)
+				$("#declaration_time_label").text(hexObjectUserData.declaration_time)
+				$("#result_label").text(hexObjectUserData.result)
+				$("#first_party_label").text(hexObjectUserData.first_party)
+				$("#second_party_label").text(hexObjectUserData.second_party)
+				$("#electorate_label").text(hexObjectUserData.electorate)
+				$("#valid_votes_label").text(hexObjectUserData.valid_votes)
+				$("#invalid_votes_label").text(hexObjectUserData.invalid_votes)
+				$("#majority_label").text(hexObjectUserData.majority)
+				$("#con_label").text(hexObjectUserData.con)
+				$("#lab_label").text(hexObjectUserData.lab)
+				$("#ld_label").text(hexObjectUserData.ld)
+				$("#ukip_label").text(hexObjectUserData.ukip)
+				$("#green_label").text(hexObjectUserData.green)
+				$("#snp_label").text(hexObjectUserData.snp)
+				$("#pc_label").text(hexObjectUserData.pc)
+				$("#dup_label").text(hexObjectUserData.dup)
+				$("#sf_label").text(hexObjectUserData.sf)
+				$("#sdlp_label").text(hexObjectUserData.sdlp)
+				$("#uup_label").text(hexObjectUserData.uup)
+				$("#alliance_label").text(hexObjectUserData.alliance)
+				$("#other_label").text(hexObjectUserData.other)
 		}
 
 		// Layout Functions

@@ -225,20 +225,20 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     mouse.y = -((event.clientY-boundingBox.top) / (document.getElementById("mapcontainer").firstChild.offsetHeight + 2)) * 2 + 1;
   }
 
-    animate();
+    animate(hoverCallback);
   }
 
 function animate() {
     requestAnimationFrame(animate);
-    render();
+    render(hoverCallback);
 }
 
-function render() {
+function render(hoverCallback) {
     TWEEN.update();
     raycaster.setFromCamera( mouse, camera );
     const intersects = raycaster.intersectObjects( scene.children, true);
     for ( var i = 0; i < intersects.length; i++ ) {
-      hoverCallback(intersects[0].object.userData.cstyid)
+      hoverCallback(intersects[0].object.parent.userData)
     }
 
     renderer.render( scene, camera );
