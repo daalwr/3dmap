@@ -2,9 +2,8 @@ if ( WEBVR.isAvailable() === false ) {
     document.body.appendChild( WEBVR.getMessage() );
 }
 
-var raycaster, scene, renderer, camera, controls;
-var mouse = new THREE.Vector2();
-var effect;
+var raycaster, scene, renderer, camera;
+var controls, effect;
 var container;
 
 function generateHexagon(height, radius, color, opacity, cstyid) {
@@ -166,10 +165,11 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     70,
     window.innerWidth / window.innerHeight,
     0.1,
-    10
+    1000
   );
 
-  camera.position.set(0, 0, 50);
+  camera.position.set(-4, 7, 13);
+  camera.up = new THREE.Vector3(0,0,1);
 
   scene.add(camera)
 
@@ -182,10 +182,8 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
 
   controls = new THREE.VRControls( camera );
   effect = new THREE.VREffect( renderer );
+  effect.setSize(window.innerWidth, window.innerHeight);
 
-
-  
-    
   WEBVR.getVRDisplay( function ( display ) {
     document.body.appendChild( WEBVR.getButton( display, renderer.domElement ) );
   } );
