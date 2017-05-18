@@ -1,6 +1,11 @@
-var raycaster, scene, renderer, camera;
+if ( WEBVR.isAvailable() === false ) {
+    document.body.appendChild( WEBVR.getMessage() );
+}
+
+var raycaster, scene, renderer, camera, controls;
 var mouse = new THREE.Vector2();
 var effect;
+var container;
 
 function generateHexagon(height, radius, color, opacity, cstyid) {
   const pts = [];
@@ -151,22 +156,39 @@ function generateHexagonalPrism(x, y, height, color, opacity, cstyid) {
 }
 
 function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback) {
+
+  container = document.createElement( 'div' );
+  document.body.appendChild( container );
+
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
   camera = new THREE.PerspectiveCamera(
-    75,
+    70,
     window.innerWidth / window.innerHeight,
     0.1,
-    1000
+    10
   );
 
-  renderer = new THREE.WebGLRenderer();
+  camera.position.set(0, 0, 50);
+
+  scene.add(camera)
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor( 0x000000 );
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.sortObjects = false;
+  container.appendChild( renderer.domElement);
 
-  document.body.appendChild( renderer.domElement);
+  controls = new THREE.VRControls( camera );
+  effect = new THREE.VREffect( renderer );
+
+
+  
+    
+  WEBVR.getVRDisplay( function ( display ) {
+    document.body.appendChild( WEBVR.getButton( display, renderer.domElement ) );
+  } );
 
   const drawHexObject = (value, key) => {
       var x = value.x;
@@ -204,9 +226,6 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     scene.children[i].userData.sortOrder = i
   }
 
-  camera.position.y = -10;
-  camera.position.z = 50;
-
   window.addEventListener("resize", onWindowResize, false);
   function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -214,22 +233,6 @@ function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback)
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     effect.setSize( window.innerWidth, window.innerHeight );
   }
-
-  const controls = new THREE.VRControls( camera );
-  effect = new THREE.VREffect( renderer );
-  
-  WEBVR.getVRDisplay( function ( display ) {
-    document.body.appendChild( WEBVR.getButton( display, renderer.domElement ) );
-  } );
-
-  raycaster = new THREE.Raycaster();
-  // document.addEventListener("mousemove", onDocumentMouseMove);
-  // function onDocumentMouseMove(event) {
-  //   const boundingBox = document.getBoundingClientRect()
-  //   // event.preventDefault(); / 
-  //   mouse.x = (event.clientX - boundingBox.left) / window.innerWidth * 2 - 1;
-  //   mouse.y = -((event.clientY-boundingBox.top) / (window.innerHeight + 2)) * 2 + 1;
-  // }
 
     animate(hoverCallback);
   }
@@ -240,12 +243,6 @@ function animate() {
 }
 
 function render(hoverCallback) {
-    // TWEEN.update();
-    // raycaster.setFromCamera( mouse, camera );
-    // const intersects = raycaster.intersectObjects( scene.children, true);
-    // for ( var i = 0; i < intersects.length; i++ ) {
-    //   hoverCallback(intersects[0].object.parent.userData)
-    // }
 
     renderer.render( scene, camera );
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -254,103 +251,4 @@ function render(hoverCallback) {
     controls.update();
     effect.render( scene, camera ); 
 
-}
-
-function tweenHexagonalPrism(hexObject, newHeight) {
-  new TWEEN.Tween({ x: hexObject.children[1].position.z })
-    .to({ x: newHeight }, 5000)
-    .onUpdate(function() {
-
-      const topHex = hexObject.children[1]
-      topHex.position.setZ(this.x)
-
-      const sides = hexObject.children[2].children
-
-      for(var i =0; i<6; i++) {
-        sides[i].geometry.vertices[0].setY(this.x)
-        sides[i].geometry.vertices[1].setY(this.x)
-        sides[i].geometry.verticesNeedUpdate = true
-      }
-    })
-    .start();
-}
-
-function tweenNewVis(hexObject, heightFunc, positionFunc) {
-
-  const targetX = positionFunc(hexObject.userData).x
-  const targetY = positionFunc(hexObject.userData).y
-
-  new TWEEN.Tween({ x: hexObject.position.x, y: hexObject.position.y, height: hexObject.children[1].position.z })
-    .to({ x: targetX, y: targetY, height: heightFunc(hexObject.userData) }, 1000)
-    .onUpdate(function() {
-      hexObject.position.x = this.x
-      hexObject.position.y = this.y
-      const topHex = hexObject.children[1]
-      topHex.position.setZ(this.height)
-
-      const sides = hexObject.children[2].children
-
-      for(var i =0; i<6; i++) {
-        sides[i].geometry.vertices[0].setY(this.height)
-        sides[i].geometry.vertices[1].setY(this.height)
-        sides[i].geometry.verticesNeedUpdate = true
-      }
-    })
-    .easing(TWEEN.Easing.Exponential.InOut)
-    .start();
-
-}
-
-function tweenColor(hexObject, colorFunc) {
-  new TWEEN.Tween(hexObject.children[1].material.color)
-    .to(colorFunc(hexObject.userData), 1000)
-    .onUpdate(function() {
-      const newColor = {r: this.r, g: this.g, b: this.b}
-      hexObject.children[1].material.color.copy(newColor)
-      for(var i =0; i<6; i++) {
-        hexObject.children[2].children[i].material.color.copy(newColor)
-      }
-    })
-    .easing(TWEEN.Easing.Exponential.InOut)
-    .start();
-}
-
-function tweenVisibility(hexObject, displayFunc) {
-  var targetOpacity
-
-  if(displayFunc(hexObject)) {
-    targetOpacity = 0.8
-  } else {
-    targetOpacity = 0.2
-  }
-
-  new TWEEN.Tween({op: hexObject.children[1].material.opacity})
-      .to({op: targetOpacity}, 1000)
-      .onUpdate(function() {
-          hexObject.children[1].material.opacity = this.op
-      })
-      .easing(TWEEN.Easing.Exponential.InOut)
-      .start()
-}
-
-// TODO Provide default args
-function animateTo(colorFunc, heightFunc, positionFunc, sortFunc, displayFunc) {
-
-  if(sortFunc) {
-    const sorted = sortFunc(scene.children)
-
-    for(var i=0; i< scene.children.length; i++) {
-      sorted[i].userData.sortOrder = i
-    }
-  }
-
-  const tween = object => {
-    if(object.type != "PointLight") {
-      if(positionFunc && heightFunc ){tweenNewVis(object, heightFunc, positionFunc)}
-      if(colorFunc) {tweenColor(object, colorFunc)}
-      if(displayFunc) {tweenVisibility(object, displayFunc)}
-    }
-  }
-
-  R.forEach(tween, scene.children);
 }
