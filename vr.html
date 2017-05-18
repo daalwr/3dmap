@@ -1,0 +1,246 @@
+<html>
+
+<head>
+	<title>UK 3D Hex Map</title>
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@daalwr" />
+	<meta name="twitter:title" content="UK 3D Hex Map" />
+	<meta name="twitter:description" content="A 3D Hexagon Map of the UK visualising constituency voting data." />
+	<meta name="twitter:image" content="http://i.imgur.com/FH38fwc.png" />
+	<meta name="twitter:creator" content="@daalwr">
+	<meta property="og:image" content="http://i.imgur.com/FH38fwc.png"/>
+	<meta property="og:title" content="UK 3D Hex Map"/>
+	<meta property="og:description" content="A 3D Hexagon Map of the UK visualising constituency voting data."/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+		body {
+			margin: 0;
+			background-color: black;
+			color: #DDD
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+
+</head>
+
+<body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="js/three.js"></script>
+	<script src="js/orbit.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+	<script src="js/hexmapVR.js"></script>
+
+	<script src="js/VRControls.js"></script>
+	<script src="js/VREffect.js"></script>
+	<script src="js/WebVR.js"></script>
+
+	<script>
+		var data = $.ajax({
+			url: "data/combined3.json",
+			dataType: "application/json",
+			async: false
+		});
+		var data = JSON.parse(data.responseText);
+
+
+		// Colouring Functions
+		var colorCon = new THREE.Color(0x2254F4);
+		var colorDUP = new THREE.Color(0x4f4c9a);
+		var colorInd = new THREE.Color(0xdfdfdf);
+		var colorSDLP = new THREE.Color(0xfbb675);
+		var colorSF = new THREE.Color(0xb6c727);
+		var colorUUP = new THREE.Color(0xEF3AAB);
+		var colorLab = new THREE.Color(0xD60303);
+		var colorSNP = new THREE.Color(0xFF6700);
+		var colorLD = new THREE.Color(0xF9BC26);
+		var colorUKIP = new THREE.Color(0x722EA5);
+		var colorGreen = new THREE.Color(0x0DBC37);
+		var colorPC = new THREE.Color(0x1DD3A7);
+		var colorSpk = new THREE.Color(0x909090);
+
+		const colorWithParty = obj => {
+			switch (obj.first_party) {
+				case "Con": return colorCon;
+				case "DUP": return colorDUP;
+				case "Ind": return colorInd;
+				case "SDLP": return colorSDLP;
+				case "SF": return colorSF;
+				case "UUP": return colorUUP;
+				case "Lab": return colorLab;
+				case "SNP": return colorSNP;
+				case "LD": return colorLD;
+				case "UKIP": return colorUKIP;
+				case "Green": return colorGreen;
+				case "PC": return colorPC;
+				case "Spk": return colorSpk;
+				default: return new THREE.Color(0x000000);
+			}
+		}
+
+		function scaleColor(number, color, maxVote) {
+			const colorCopy = new THREE.Color(color)
+			var scale = number / maxVote
+			if (scale > 1) {
+				scale = 1
+			}
+			return colorCopy.multiplyScalar(scale)
+		}
+
+		const values = R.values(data)
+
+		function calculateMaxVote(getVotesFunc) {
+			return R.reduce((a, b) => R.max(a, b), 0, R.map(getVotesFunc, values))
+		}
+
+		const maxConVote = calculateMaxVote(obj => parseInt(obj.con))
+		const maxDUPVote = calculateMaxVote(obj => parseInt(obj.dup))
+		const maxIndVote = calculateMaxVote(obj => parseInt(obj.other))
+		const maxSDLPVote = calculateMaxVote(obj => parseInt(obj.sdlp))
+		const maxSFVote = calculateMaxVote(obj => parseInt(obj.sf))
+		const maxUUPVote = calculateMaxVote(obj => parseInt(obj.uup))
+		const maxLabVote = calculateMaxVote(obj => parseInt(obj.lab))
+		const maxSNPVote = calculateMaxVote(obj => parseInt(obj.snp))
+		const maxLDVote = calculateMaxVote(obj => parseInt(obj.ld))
+		const maxUKIPVote = calculateMaxVote(obj => parseInt(obj.ukip))
+		const maxGreenVote = calculateMaxVote(obj => parseInt(obj.green))
+		const maxPCVote = calculateMaxVote(obj => parseInt(obj.pc))
+
+		const colorWithCon = obj => { return scaleColor(obj.con, colorCon, maxConVote) }
+		const colorWithDUP = obj => { return scaleColor(obj.dup, colorDUP, maxDUPVote) }
+		const colorWithInd = obj => { return scaleColor(obj.other, colorInd, maxIndVote) }
+		const colorWithSDLP = obj => { return scaleColor(obj.sdlp, colorSDLP, maxSDLPVote) }
+		const colorWithSF = obj => { return scaleColor(obj.sf, colorSF, maxSFVote) }
+		const colorWithUUP = obj => { return scaleColor(obj.uup, colorUUP, maxUUPVote) }
+		const colorWithLab = obj => { return scaleColor(obj.lab, colorLab, maxLabVote) }
+		const colorWithSNP = obj => { return scaleColor(obj.snp, colorSNP, maxSNPVote) }
+		const colorWithLD = obj => { return scaleColor(obj.ld, colorLD, maxLDVote) }
+		const colorWithUKIP = obj => { return scaleColor(obj.ukip, colorUKIP, maxUKIPVote) }
+		const colorWithGreen = obj => { return scaleColor(obj.green, colorGreen, maxGreenVote) }
+		const colorWithPC = obj => { return scaleColor(obj.pc, colorPC, maxPCVote) }
+		
+		const colorWithElectorateSize = obj => { return scaleColor(parseInt(obj.electorate) - 50000, new THREE.Color(0xFFFFFF), 30000) }
+
+		// Height Functions
+		const heightToMajority = obj => {
+			return parseInt(obj.majority) / 3000
+		}
+
+		const heightToCon = obj => { return parseInt(obj.con) / 3000 }
+		const heightToDUP = obj => { return parseInt(obj.dup) / 3000 }
+		const heightToInd = obj => { return parseInt(obj.other) / 3000 }
+		const heightToSDLP = obj => { return parseInt(obj.sdlp) / 3000 }
+		const heightToSF = obj => { return parseInt(obj.sf) / 3000 }
+		const heightToUUP = obj => { return parseInt(obj.uup) / 3000 }
+		const heightToLab = obj => { return parseInt(obj.lab) / 3000 }
+		const heightToSNP = obj => { return parseInt(obj.snp) / 3000 }
+		const heightToLD = obj => { return parseInt(obj.ld) / 3000 }
+		const heightToUKIP = obj => { return parseInt(obj.ukip) / 3000 }
+		const heightToGreen = obj => { return parseInt(obj.green) / 3000 }
+		const heightToPC = obj => { return parseInt(obj.pc) / 3000 }
+
+		const heightToElectorate = obj => { return parseInt(obj.electorate) / 3000 }
+
+		const generateOpacity = obj => { return 0.5 }
+
+		const hoverCallback = (hexObjectUserData) => {
+				$("#ons_id_label").text(hexObjectUserData.ons_id);
+				$("#ons_id_label").text(hexObjectUserData.ons_id)
+				$("#ons_region_id_label").text(hexObjectUserData.ons_region_id)
+				$("#constituency_name_label").text(hexObjectUserData.constituency_name)
+				$("#county_name_label").text(hexObjectUserData.county_name)
+				$("#region_name_label").text(hexObjectUserData.region_name)
+				$("#country_name_label").text(hexObjectUserData.country_name)
+				$("#constituency_type_label").text(hexObjectUserData.constituency_type)
+				$("#declaration_time_label").text(hexObjectUserData.declaration_time)
+				$("#result_label").text(hexObjectUserData.result)
+				$("#first_party_label").text(hexObjectUserData.first_party)
+				$("#second_party_label").text(hexObjectUserData.second_party)
+				$("#electorate_label").text(hexObjectUserData.electorate)
+				$("#valid_votes_label").text(hexObjectUserData.valid_votes)
+				$("#invalid_votes_label").text(hexObjectUserData.invalid_votes)
+				$("#majority_label").text(hexObjectUserData.majority)
+				$("#con_label").text(hexObjectUserData.con)
+				$("#lab_label").text(hexObjectUserData.lab)
+				$("#ld_label").text(hexObjectUserData.ld)
+				$("#ukip_label").text(hexObjectUserData.ukip)
+				$("#green_label").text(hexObjectUserData.green)
+				$("#snp_label").text(hexObjectUserData.snp)
+				$("#pc_label").text(hexObjectUserData.pc)
+				$("#dup_label").text(hexObjectUserData.dup)
+				$("#sf_label").text(hexObjectUserData.sf)
+				$("#sdlp_label").text(hexObjectUserData.sdlp)
+				$("#uup_label").text(hexObjectUserData.uup)
+				$("#alliance_label").text(hexObjectUserData.alliance)
+				$("#other_label").text(hexObjectUserData.other)
+		}
+
+		// Layout Functions
+
+		const mapPosition = obj => {
+			return { x: obj.originX, y: obj.originY }
+		}
+
+		const rectanglePosition = obj => {
+			return { x: obj.sortOrder % 25 * 2 - 25, y: obj.sortOrder / 25 * 2 - 25 }
+		}
+
+		const explodePosition = obj => {
+			return { x: obj.originX * 20, y: obj.originY * 20 }
+		}
+
+		const partySortOrder = party => {
+			switch(party) {
+					case "Con": return 0;
+					case "DUP": return 8;
+					case "Ind": return 7;
+					case "SDLP": return 4;
+					case "SF": return 5;
+					case "UUP": return 6;
+					case "Lab": return 1;
+					case "SNP": return 3;
+					case "LD": return 2;
+					case "UKIP": return 9;
+					case "Green": return 10;
+					case "PC": return 11;
+					case "Spk": return 12;
+					default: return -1;
+			}
+		}
+
+		const sortByParty = R.sortWith([  
+      R.descend(obj => partySortOrder(R.path(["userData", "first_party"])(obj))),
+      R.descend(R.compose(x => parseInt(x), R.path(["userData", "majority"])))
+    ]);
+
+
+		const showAlways = obj => true
+
+		const showGains = obj => {
+			if(obj.userData.result.includes("gain")) {
+				return true
+			} else {
+				return false
+			}
+		}
+
+		generateHexMap(data, colorWithParty, heightToMajority, generateOpacity, hoverCallback)
+			
+	</script>
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-99095105-1', 'auto');
+  ga('send', 'pageview');
+
+	</script>
+</body>
+
+</html>
