@@ -149,9 +149,9 @@ function generateHexagonalPrism(x, y, height, color, opacity, cstyid) {
   return group;
 }
 
-function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback) {
+function generateHexMap(data, colorFunc, heightFunc, opacityFunc, hoverCallback, bgColor) {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
+  scene.background = new THREE.Color(bgColor);
   camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
